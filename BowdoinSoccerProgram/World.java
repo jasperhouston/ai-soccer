@@ -50,7 +50,7 @@ public class World
         ResetScore();
     }
 
-    public final void GoAhead() 
+    public final void GoAhead()
     {
         GameOn = true;
     }
@@ -104,18 +104,18 @@ public class World
                     action_cost = PlayerAction(WestPlayers[(i-1)/2], WestTeam, action);
                 }
                 Ticker[i] = action_cost;
-            } 
+            }
             Ticker[i]--;
             if (i % 2 == 0)
                 UI.Field.PlayerRequest(REQ_DRAWPLAYER, EastPlayers[i/2], EastTeam);
             else
                 UI.Field.PlayerRequest(REQ_DRAWPLAYER, WestPlayers[(i -1)/2], WestTeam);
         }
-        try        
+        try
         {
             Thread.sleep(10);
-        } 
-        catch(InterruptedException ex) 
+        }
+        catch(InterruptedException ex)
         {
             Thread.currentThread().interrupt();
         }
@@ -131,14 +131,14 @@ public class World
         BaseRate += 0.1;
     }
 
-    /**  This loads a team from the filename it is passed.  Do not give it an extension on the 
+    /**  This loads a team from the filename it is passed.  Do not give it an extension on the
     filename.  The extension ".class" is appended somewhere deep in the bowels of Sun's
     code.  And no, I didn't see that fact documented anywhere either.  */
     public final boolean LoadTeam(String filename, int Side)
     {
         Player TempPlayers[] = new Player[4];
 
-        int counter; 
+        int counter;
         boolean retval = true;
         if(Side==EAST)
             System.out.println("Loading " + filename + " in the East");
@@ -177,7 +177,7 @@ public class World
     Returns -1 on error.   */
 
     public final int GetTeamID(Player Unknown)
-    {  
+    {
         if(Unknown!=null && EastTeam!=null && WestTeam!=null)
         {
             if(EastTeam.IsAMember(Unknown))
@@ -185,7 +185,7 @@ public class World
             else if(WestTeam.IsAMember(Unknown))
                 return WEST;
         }
-        return -1;       
+        return -1;
     }
 
     /**  Returns information about any of the eight squares around the player.   It returns
@@ -228,7 +228,7 @@ public class World
         return -1;
     }
 
-    /**  Returns the direction to the ball. */  
+    /**  Returns the direction to the ball. */
     public final int GetBallDirection(Player Client)
     {
         Team ClientTeam = GetTeam(Client);
@@ -299,7 +299,7 @@ public class World
 
     /**  The original implementation gave players the ability to determine the distance to the
     closest opponent, the next closest opponent, and so forth.   I'd rather give them the
-    distance to player one, player two, etc, just because it makes my life easier, but 
+    distance to player one, player two, etc, just because it makes my life easier, but
     they'd probably just end up seeing who was closest anyway...  So I left it alone; if you
     pass it 1, it will return the closest.  If you pass it 4, it will return the distance to the furthest. */
 
@@ -317,7 +317,7 @@ public class World
 
     /**  I'm not proud of this function.  It finds the location of the nth clostest opponent to the
     client.  It takes so many arguements because the functions that call it need to find
-    client team and player location anyway - no sense in doing it twice. */  
+    client team and player location anyway - no sense in doing it twice. */
     private final Point GetOpponentLocation(int nth, Player Client, Team ClientTeam, Point PlayerLocation)
     {
         Point Location[] = new Point[4];
@@ -357,7 +357,7 @@ public class World
                     Distance[countertwo] = tempfloat;
                 }
             }
-        return Location[nth - 1];   
+        return Location[nth - 1];
     }
 
     /**  This is what the ball calls to query the world to see if a given move is valid. */
@@ -439,7 +439,7 @@ public class World
         Point Location;
         Point NewLocation;
         Point Delta;
-        Point BallDelta;    
+        Point BallDelta;
         int contents;
         boolean PushedBall = false;
         boolean KickedBall = false;
@@ -461,7 +461,7 @@ public class World
         {
             System.out.println("Invalid team trying to act");
             System.exit(1);
-        }  
+        }
 
         Location = ActorTeam.GetPlayerLocation(Actor);
 
@@ -504,7 +504,7 @@ public class World
                     SoccerBall.StopBall();
                     for (int i = 0; i < count; i++)
                         SoccerBall.Translate(BallDelta);
-                    UI.Field.BallRequest(REQ_DRAWBALL);  
+                    UI.Field.BallRequest(REQ_DRAWBALL);
                 }
             }  // nudging
             // ??? retval = false;
@@ -522,7 +522,7 @@ public class World
                 ActorTeam.TranslatePlayer(Actor, Delta);
                 UI.Field.PlayerRequest(REQ_DRAWPLAYER, Actor, ActorTeam);
                 retval = Math.abs(Delta.x) + Math.abs(Delta.y) + 2;
-            }        
+            }
             else if(contents==BALL)
             {
                 //  Is there room to push the ball?
@@ -562,7 +562,7 @@ public class World
                             SoccerBall.StopBall();
                             for (int i = 0; i < count; i++)
                                 SoccerBall.Translate(BallDelta);
-                            UI.Field.BallRequest(REQ_DRAWBALL);  
+                            UI.Field.BallRequest(REQ_DRAWBALL);
                             UI.Field.PlayerRequest(REQ_ERASEPLAYER, Actor, ActorTeam);
                             ActorTeam.TranslatePlayer(Actor, Delta);
                             UI.Field.PlayerRequest(REQ_DRAWPLAYER, Actor, ActorTeam);
@@ -570,7 +570,7 @@ public class World
                         }
                         else
                         // D'oh!
-                            retval = 2;  
+                            retval = 2;
                     }  // end try to nudge ball
 
                     else
@@ -579,9 +579,9 @@ public class World
             else
                 retval = 2;
             break;  //  end default case
-        }  // end of switch  
+        }  // end of switch
 
-        return retval;    
+        return retval;
     } // end private PlayerAction
 
     /**  Called by GUI when the window is closing - let's us notify the teams that
@@ -608,7 +608,7 @@ public class World
         ------|------
         + -   |   - -
 
-        This means that we can narrow the direction down to three choices right off the bat.    
+        This means that we can narrow the direction down to three choices right off the bat.
         The shortest path toward the ball will either be along the major axis or the diagonal
         through the quadrant.  This narrows our choice down to two directions.  We can use the
         tangent (watching out for division by zero) to determine if the ball is closer to the diagonal
@@ -629,7 +629,7 @@ public class World
                     if(Math.abs(((float)Delta.y)/((float)Delta.x))>.41421356237)
                         return NORTHWEST;
                     else
-                        return WEST;  
+                        return WEST;
                 }
                 else  //  it's Y major
                 {
@@ -639,7 +639,7 @@ public class World
                     if(Math.abs(((float)Delta.x)/((float)Delta.y))>.41421356237)
                         return NORTHWEST;
                     else
-                        return NORTH;  
+                        return NORTH;
                 }
             }
             else // DX>=0, DY<0
@@ -649,7 +649,7 @@ public class World
                     if(Math.abs(((float)Delta.y)/((float)Delta.x))>.41421356237)
                         return SOUTHWEST;
                     else
-                        return WEST;  
+                        return WEST;
                 }
                 else  //  it's Y major
                 {
@@ -659,7 +659,7 @@ public class World
                     if(Math.abs(((float)Delta.x)/((float)Delta.y))>.41421356237)
                         return SOUTHWEST;
                     else
-                        return SOUTH;  
+                        return SOUTH;
                 }
             }  //  end DX>=0, DY<0
         } //  end DX>=0
@@ -672,7 +672,7 @@ public class World
                     if(Math.abs(((float)Delta.y)/((float)Delta.x))>.41421356237)
                         return NORTHEAST;
                     else
-                        return EAST;  
+                        return EAST;
                 }
                 else  //  it's Y major
                 {
@@ -682,7 +682,7 @@ public class World
                     if(Math.abs(((float)Delta.x)/((float)Delta.y))>.41421356237)
                         return NORTHEAST;
                     else
-                        return NORTH;  
+                        return NORTH;
                 }
             }
             else // DX<0, DY<0
@@ -692,7 +692,7 @@ public class World
                     if(Math.abs(((float)Delta.y)/((float)Delta.x))>.41421356237)
                         return SOUTHEAST;
                     else
-                        return EAST;  
+                        return EAST;
                 }
                 else  //  it's Y major
                 {
@@ -702,7 +702,7 @@ public class World
                     if(Math.abs(((float)Delta.x)/((float)Delta.y))>.41421356237)
                         return SOUTHEAST;
                     else
-                        return SOUTH;  
+                        return SOUTH;
                 }
             }  //  end DX<0, DY<0
         }  //  end DX<0
@@ -755,7 +755,7 @@ public class World
         if(direction>=NORTH && direction<=NORTHWEST)
             return new Point(DeltaLookupTable[direction]);
         else
-            return new Point(0, 0);    
+            return new Point(0, 0);
     }
 
     private final void ResetScore()
@@ -783,7 +783,7 @@ public class World
                 UI.ShowVictory(WEST);
             }
         }
-    }  
+    }
 
     public final void Timeout()
     {
@@ -800,7 +800,7 @@ public class World
             Cycles = 0;
             EastTeam.ResetTeam();
             WestTeam.ResetTeam();
-            SoccerBall.RandomPlace();  
+            SoccerBall.RandomPlace();
             for(counter=1; counter<5; counter++)
             {
                 UI.Field.PlayerRequest(REQ_DRAWPLAYER, EastTeam.GetPlayer(counter), EastTeam);
@@ -838,7 +838,7 @@ public class World
     public int Nudging;
     public int Cycles;
 
-    private DynamicClassLoader DynLoader;  
+    private DynamicClassLoader DynLoader;
     private int TimeoutTimer;
     private Point DeltaLookupTable[];
     private int EastScore;
@@ -850,7 +850,7 @@ public class World
     private boolean Step;
     private static boolean Training = true;
 
-    //  Here's a huge list of constants.  
+    //  Here's a huge list of constants.
     //  You MUST leave the directions as 0-7 in order for the ball nudge routine to work
     //  correctly.  Also, I cut and paste this into the player class because it's ridiculous to
     //  always refer to World.NORTH et al when you're writing agents.
@@ -881,7 +881,7 @@ public class World
     static public final int REQ_DRAWPLAYER = 4;
     static public final int POINTSTOWIN = 15;
     //  chance the ball scoots off in a random direction when it's stuck
-    static public final double NUDGECHANCE = 0.10; 
+    static public final double NUDGECHANCE = 0.10;
     // How many times can we kick the ball fruitlessly
     static public final int NUDGELIMIT = 10;
     //  milliseconds between the balls actions (how fast it moves)
@@ -899,18 +899,18 @@ public class World
 
     static public final long  TIMEOUT = 60000L;
     static public final int   CYCLELIMIT = 2500;
-    static public final Color FIELDCOLOR = Color.green;
+    static public final Color FIELDCOLOR = new Color(34,139,34);
     static public final Color GOALCOLOR = Color.gray;
     static public final Color SIDECOLOR = Color.white;
     static public final Color FRAMECOLOR = Color.black;
     static public final Color BALLCOLOR = Color.white;
     static public final Color WINDOWCOLOR = Color.lightGray;
-} 
+}
 
 /*  The constructor of ClassLoader is protected, which means I have to go through
 this run around and derive my own class from it.  <put out> In a nutshell, this baby lets
-me load classes from disk.  I can't believe I just refered to something as "baby".  <sigh> 
- */  
+me load classes from disk.  I can't believe I just refered to something as "baby".  <sigh>
+ */
 
 class DynamicClassLoader extends ClassLoader
 {
@@ -966,4 +966,3 @@ class DynamicClassLoader extends ClassLoader
         return retval;
     }
 }
-
