@@ -358,6 +358,7 @@ public class BlueDragons extends Player
             return(Lead());
         }
 
+
         /* Try to get into position */
         if (Look(NORTH) == EMPTY && (y > ply[leader])) {
             ns = NORTH;
@@ -411,7 +412,7 @@ public class BlueDragons extends Player
          ballx = 0;
          bally = 0;
          for(int player = 0; player < 4; player ++) {
-             if(look[0] == 9) {
+             if(ook[0] == 9) {
                 weight= 1000;
                 ballx_temp = plx[player];
                 bally_temp = ply[player] - 1;
