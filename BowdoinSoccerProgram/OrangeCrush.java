@@ -1,11 +1,14 @@
 import java.awt.*;
 
-public class BlueDragons extends Player
-{
+public class OrangeCrush extends Player {
     static final int CONTROL_TIME = 13;
+    static final int WINGSPAN = 10;
+    static final int WINGBACK = 4;
+    static final int BALLDISTANCETOLEAD = 3;
+    static final int SWEEPERDISTBACK = 8;
     static final int Lead = 1;
-    static final int Second = 2;
-    static final int Third = 3;
+    static final int NorthWing = 2;
+    static final int SouthWing = 3;
     static final int Sweeper = 4;
 
     static int cycle;
@@ -39,8 +42,8 @@ public class BlueDragons extends Player
             synchro[i] = 0;
         }
         roles[0] = Lead;
-        roles[1] = Second;
-        roles[2] = Third;
+        roles[1] = NorthWing;
+        roles[2] = SouthWing;
         roles[3] = Sweeper;
     }
 
@@ -58,9 +61,9 @@ public class BlueDragons extends Player
         switch (roles[0]) {
             case Lead: action =  Lead();
             break;
-            case Second: action =  Second();
+            case NorthWing: action =  NorthWing();
             break;
-            case Third: action =  Third();
+            case SouthWing: action =  SouthWing();
             break;
             case Sweeper: action =  Sweeper();
             break;
@@ -79,9 +82,9 @@ public class BlueDragons extends Player
         switch (roles[1]) {
             case Lead: action =  Lead();
             break;
-            case Second: action =  Second();
+            case NorthWing: action =  NorthWing();
             break;
-            case Third: action =  Third();
+            case SouthWing: action =  SouthWing();
             break;
             case Sweeper: action =  Sweeper();
             break;
@@ -100,9 +103,9 @@ public class BlueDragons extends Player
         switch (roles[2]) {
             case Lead: action =  Lead();
             break;
-            case Second: action =  Second();
+            case NorthWing: action =  NorthWing();
             break;
-            case Third: action =  Third();
+            case SouthWing: action =  SouthWing();
             break;
             case Sweeper: action =  Sweeper();
             break;
@@ -121,9 +124,9 @@ public class BlueDragons extends Player
         switch (roles[3]) {
             case Lead: action =  Lead();
             break;
-            case Second: action =  Second();
+            case NorthWing: action =  NorthWing();
             break;
-            case Third: action =  Third();
+            case SouthWing: action =  SouthWing();
             break;
             case Sweeper: action =  Sweeper();
             break;
@@ -146,6 +149,7 @@ public class BlueDragons extends Player
         }
         return 0;
     }
+
 
     public void Behave () {
 
@@ -182,6 +186,30 @@ public void Regroup (int newLead) {
     leader = newLead;
     roles[leader] = Lead;
 
+    /* southernmost unassigned player is south wing */
+    score = -1;
+    for (i=0; i<4; i++) {
+        if (roles[i] == 0) {
+            if (ply[i] > score) {
+                score = ply[i];
+                good = i;
+            }
+        }
+    }
+    roles[good] = SouthWing;
+
+    /* northernmost unassigned player is north wing */
+    score = 10000;
+    for (i=0; i<4; i++) {
+        if (roles[i] == 0) {
+            if (ply[i] < score) {
+                score = ply[i];
+                good = i;
+            }
+        }
+    }
+    roles[good] = NorthWing;
+
     /* easternmost unassigned player is Sweeper */
     score = -1;
     for (i=0; i<4; i++) {
@@ -193,21 +221,6 @@ public void Regroup (int newLead) {
         }
     }
     roles[good] = Sweeper;
-
-    /* unassigned players are assigned Second and Third */
-    for (i=0; i<4; i++) {
-        if (roles[i] == 0) {
-            roles[i] = Second;
-            break;
-        }
-    }
-    for (i=0; i<4; i++) {
-        if (roles[i] == 0) {
-            roles[i] = Third;
-            break;
-        }
-    }
-
 }
 
 public int Lead () {
@@ -351,11 +364,121 @@ public int Lead () {
     return(GetBallDirection());
 }
 
-public int Second () {
-    return Lead();
+public int NorthWing () {
+    int x;
+    int y;
+    int ew = -1;
+    int ns = -1;
+    x = GetLocation().x;
+    y = GetLocation().y;
+
+    /* If near the ball, act like a leader */
+    if (GetBallDistance() < BALLDISTANCETOLEAD) {
+        return(Lead());
+    }
+
+    /* Try to get into position */
+    if (Look(NORTH) == EMPTY && (y > ply[leader] - WINGSPAN)) {
+        ns = NORTH;
+    }
+    if (Look(SOUTH) == EMPTY && (y < ply[leader] - WINGSPAN)) {
+        ns = SOUTH;
+    }
+    if ((x < plx[leader]) && (y == ply[leader])) {
+        ns = SOUTH;
+    }
+    if (Look(WEST) == EMPTY && (x > plx[leader] + WINGBACK)) {
+        ew = WEST;
+    }
+    if (Look(EAST) == EMPTY && (x < plx[leader] + WINGBACK)) {
+        ew = EAST;
+    }
+
+    if ((ew == EAST) && (ns == NORTH)) {
+        return(NORTHEAST);
+    }
+    if ((ew == EAST) && (ns == SOUTH)) {
+        return(SOUTHEAST);
+    }
+    if ((ew == WEST) && (ns == NORTH)) {
+        return(NORTHWEST);
+    }
+    if ((ew == WEST) && (ns == SOUTH)) {
+        return(SOUTHWEST);
+    }
+    if (ew == EAST) {
+        return(EAST);
+    }
+    if (ew == WEST) {
+        return(WEST);
+    }
+    if (ns == NORTH) {
+        return(NORTH);
+    }
+    if (ns == SOUTH) {
+        return(SOUTH);
+    }
+    return(GetBallDirection());
 }
 
-public int Third () {
+public int SouthWing () {
+    int x;
+    int y;
+    int ew = -1;
+    int ns = -1;
+    x = GetLocation().x;
+    y = GetLocation().y;
+
+    /* If near the ball, act like a leader */
+    if (GetBallDistance() < BALLDISTANCETOLEAD) {
+        return(Lead());
+    }
+
+    /* Try to get into position */
+    if (Look(NORTH) == EMPTY && (y > ply[leader] + WINGSPAN)) {
+        ns = NORTH;
+    }
+    if (Look(SOUTH) == EMPTY && (y < ply[leader] + WINGSPAN)) {
+        ns = SOUTH;
+    }
+    if ((x < plx[leader]) && (y == ply[leader])) {
+        ns = NORTH;
+    }
+    if (Look(WEST) == EMPTY && (x > plx[leader] + WINGBACK)) {
+        ew = WEST;
+    }
+    if (Look(EAST) == EMPTY && (x < plx[leader] + WINGBACK)) {
+        ew = EAST;
+    }
+
+    if ((ew == EAST) && (ns == NORTH)) {
+        return(NORTHEAST);
+    }
+    if ((ew == EAST) && (ns == SOUTH)) {
+        return(SOUTHEAST);
+    }
+    if ((ew == WEST) && (ns == NORTH)) {
+        return(NORTHWEST);
+    }
+    if ((ew == WEST) && (ns == SOUTH)) {
+        return(SOUTHWEST);
+    }
+    if (ew == EAST) {
+        return(EAST);
+    }
+    if (ew == WEST) {
+        return(WEST);
+    }
+    if (ns == NORTH) {
+        return(NORTH);
+    }
+    if (ns == SOUTH) {
+        return(SOUTH);
+    }
+    return(GetBallDirection());
+}
+
+public int Rear() {
     return Lead();
 }
 
@@ -368,7 +491,7 @@ public int Sweeper () {
     y = GetLocation().y;
 
     /* If near the ball, act like a leader */
-    if (GetBallDistance() < 2) {
+    if (GetBallDistance() < BALLDISTANCETOLEAD) {
         return(Lead());
     }
 
@@ -384,10 +507,10 @@ public int Sweeper () {
     }
 
 
-    if (Look(WEST) == EMPTY && (x > plx[leader] + 8)) {
+    if (Look(WEST) == EMPTY && (x > plx[leader] + SWEEPERDISTBACK)) {
         ew = WEST;
     }
-    if (Look(EAST) == EMPTY && (x < plx[leader] + 8)) {
+    if (Look(EAST) == EMPTY && (x < plx[leader] + SWEEPERDISTBACK)) {
         ew = EAST;
     }
 
@@ -427,9 +550,7 @@ public int Sweeper () {
     return(GetBallDirection());
 }
 
-
-public int getAction()
-{
+public int getAction() {
     switch(ID)
     {
         case 1:
@@ -443,4 +564,5 @@ public int getAction()
     }
     return BALL;
 }
+
 }
