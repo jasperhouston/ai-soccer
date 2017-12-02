@@ -58,58 +58,85 @@ public class Silverbacks extends Player
     }
 
     public int Player1() {
-        return MakeMove(0);
+        return MakeMove();
     }
 
     public int Player2() {
-        return MakeMove(1);
+        return MakeMove();
     }
 
     public int Player3() {
-        return MakeMove(2);
+        return MakeMove();
     }
 
     public int Player4() {
-        return MakeMove(3);
+        return MakeMove();
     }
 
-    public int MakeMove(int player) {
-        GetData(player);
+    public int MakeMove() {
+        GetData();
         if(balldist < 2) 
-            return Leader(player);
+            return Leader();
         for(int i = 0; i < 4; i++) {
-            if(i != player && plx[player] <= plx[i])
-                return Leader(player);
+            if(i != ID && plx[ID-1] <= plx[i])
+                return Leader();
         }
-        return Leader(player);
+        return Leader();
     }
     
-    public int Leader(int player) {
+    public int Leader() {
         if(balldist == 1) {
-            return SurroundBall(player);
+            return SurroundBall();
         }
-        return GetBehindBall(player);        
+        if(plx[ID-1] < ballx && Math.abs(ply[ID-1] - bally) == 1) {
+            if(look[EAST] == EMPTY)
+                return EAST;
+        }
+        if(look[balldir] == EMPTY) {
+            return balldir;
+        }
+        if(balldir%4 == 0) {
+            return InterceptBall();
+        }
+        if(balldir == SOUTHWEST) {
+            if(look[SOUTH] == EMPTY)
+                return SOUTH;
+            else if(look[WEST] == EMPTY)
+                return WEST;
+            }
+        if(balldir == WEST) {
+            if(look[NORTHWEST] == EMPTY)
+                return NORTHWEST;
+            else if(look[SOUTHWEST] == EMPTY)
+                return SOUTHWEST;
+        }
+        if(balldir == NORTHWEST) {
+            if(look[NORTH] == EMPTY)
+                return NORTH;
+            else if(look[WEST] == EMPTY)
+                return NORTHWEST;
+        }
+        return PLAYER;        
     }
     
-    public int Sweeper (int player) {
+    public int Sweeper () {
         int ew = -1;
         int ns = -1;
 
-
         /* Try to get into position */
-        if (Look(NORTH) == EMPTY && (ply[player] > bally)) {
+        if (Look(NORTH) == EMPTY && (ply[ID-1] > bally)) {
             ns = NORTH;
         }
-        if (Look(SOUTH) == EMPTY && (ply[player] < bally)) {
+        if (Look(SOUTH) == EMPTY && (ply[ID-1] < bally)) {
             ns = SOUTH;
         }
-        if ((plx[player] < ballx) && (ply[player] == bally)) {
+        if ((plx[ID-1] < ballx) && (ply[ID-1] == bally)) {
             ns = SOUTH;
         }
-        if (Look(WEST) == EMPTY && (plx[player] > ballx + 6)) {
+        if (Look(WEST) == EMPTY && (plx[ID-1] > ballx + 6)) {
             ew = WEST;
         }
-        if (Look(EAST) == EMPTY && (plx[player] < ballx + 6)) {
+        if (Look(EAST) == EMPTY && (plx[ID-1] < ballx + 6)) {
             ew = EAST;
         }
 
@@ -140,48 +167,14 @@ public class Silverbacks extends Player
 
         return(balldir);
     }
-    
-
-    public int GetBehindBall(int player) {
-        if(plx[player] < ballx && Math.abs(ply[player] - bally) == 1) {
-            if(look[EAST] == EMPTY)
-                return EAST;
-        }
-        if(look[balldir] == EMPTY) {
-            return balldir;
-        }
-        if(balldir%4 == 0) {
-            return InterceptBall(player);
-        }
-        if(balldir == SOUTHWEST) {
-            if(look[SOUTH] == EMPTY)
-                return SOUTH;
-            else if(look[WEST] == EMPTY)
-                return WEST;
-            }
-        if(balldir == WEST) {
-            if(look[NORTHWEST] == EMPTY)
-                return NORTHWEST;
-            else if(look[SOUTHWEST] == EMPTY)
-                return SOUTHWEST;
-        }
-        if(balldir == NORTHWEST) {
-            if(look[NORTH] == EMPTY)
-                return NORTH;
-            else if(look[WEST] == EMPTY)
-                return NORTHWEST;
-        }
-        return PLAYER;
-    }
-    
-    
+      
     //moves/kicks depending on where the ball is
-    public int SurroundBall(int player) {
+    public int SurroundBall() {
         boolean opp_in_way = false;
         int offset_from_east = balldir - EAST;
         if(look[WEST] == BALL) {
             for(int i = 0; i < 4; i++) {
-                if(oppx[i] == plx[player] && oppy[i] < ply[player])
+                if(oppx[i] == plx[ID-1] && oppy[i] < ply[ID-1])
                     opp_in_way = true;
             }
             if(!opp_in_way)
@@ -189,7 +182,7 @@ public class Silverbacks extends Player
         }
         else if(look[NORTHWEST] == BALL) {
             for(int i = 0; i < 4; i++) {
-                if((plx[player] - oppx[i] == ply[player] - oppy[i]) && oppy[i] < ply[player])
+                if((plx[ID-1] - oppx[i] == ply[ID-1] - oppy[i]) && oppy[i] < ply[ID-1])
                     opp_in_way = true;
             }
             if(!opp_in_way)
@@ -197,7 +190,7 @@ public class Silverbacks extends Player
         }
         else if(look[SOUTHWEST] == BALL) {
             for(int i = 0; i < 4; i++) {
-                if((plx[player] - oppx[i] == oppy[i] - ply[player]) && oppy[i] < ply[player])
+                if((plx[ID-1] - oppx[i] == oppy[i] - ply[ID-1]) && oppy[i] < ply[ID-1])
                     opp_in_way = true;
             }
             if(!opp_in_way)
@@ -220,8 +213,8 @@ public class Silverbacks extends Player
                 return EAST+2*offset_from_east;
             else if(look[EAST-offset_from_east] == EMPTY)
                 return EAST-offset_from_east;
-            else if(look[(EAST+3*offset_from_east)%8] == EMPTY)
-                return (EAST+3*offset_from_east)%8;
+            else if(look[(((EAST+3*offset_from_east) % 8) + 8) % 8] == EMPTY)
+                return (((EAST+3*offset_from_east/2) % 8) + 8) % 8;
         }
         //what to do here??
         else if(balldir == NORTH || balldir == SOUTH) {
@@ -255,25 +248,25 @@ public class Silverbacks extends Player
         return mindist;
     }
 
-    public int InterceptBall(int player) {
-        if(bally < ply[player]) {
+    public int InterceptBall() {
+        if(bally < ply[ID-1]) {
             if(look[NORTHEAST] == EMPTY)
                 return NORTHEAST;
-            if(ballx <= plx[player] && look[NORTH] == EMPTY)
+            if(ballx <= plx[ID-1] && look[NORTH] == EMPTY)
                 return NORTH;
             if(look[EAST] == EMPTY)
                 return EAST;
             if(look[NORTH] == EMPTY)
                 return NORTH;
         }
-        else if(bally > ply[player]) {
+        else if(bally > ply[ID-1]) {
             if(look[SOUTHEAST] == EMPTY)
                 return SOUTHEAST;
-            if(ballx <= plx[player])
+            if(ballx <= plx[ID-1])
                 return SOUTH;
             return EAST;
         }
-        else if(ballx > plx[player]) {
+        else if(ballx > plx[ID-1]) {
             if(look[EAST] == EMPTY) {
                 return EAST;
             }
@@ -300,32 +293,32 @@ public class Silverbacks extends Player
         return balldir;
     }
 
-    public boolean CanIScore(int player) {
+    public boolean CanIScore() {
         boolean iCanScore = false;
         if(GetBallDistance() == 1) {
             if(look[WEST] == BALL) {
-                if(plx[player] < 10) {
+                if(plx[ID-1] < 10) {
                     iCanScore = true;
                     for(int i = 0; i < 4; i++) {
-                        if(oppx[i] == plx[player] && oppy[i] < ply[player])
+                        if(oppx[i] == plx[ID-1] && oppy[i] < ply[ID-1])
                             return false;
                     }
                 }
             }
             else if(look[NORTHWEST] == BALL) {
-                if(plx[player] < 7) {
+                if(plx[ID-1] < 7) {
                     iCanScore = true;
                     for(int i = 0; i < 4; i++) {
-                        if((plx[player] - oppx[i] == ply[player] - oppy[i]) && oppy[i] < ply[player])
+                        if((plx[ID-1] - oppx[i] == ply[ID-1] - oppy[i]) && oppy[i] < ply[ID-1])
                             return false;
                     }
                 }        
             }
             else if(look[SOUTHWEST] == BALL) {
-                if(plx[player] < 7) {
+                if(plx[ID-1] < 7) {
                     iCanScore = true;
                     for(int i = 0; i < 4; i++) {
-                        if((plx[player] - oppx[i] == oppy[i] - ply[player]) && oppy[i] < ply[player])
+                        if((plx[ID-1] - oppx[i] == oppy[i] - ply[ID-1]) && oppy[i] < ply[ID-1])
                             return false;
                     }
                 }            
@@ -336,16 +329,16 @@ public class Silverbacks extends Player
         return true;
     }
 
-    public void GetData(int player) {
-        plx[player] = GetLocation().x;
-        ply[player] = GetLocation().y;
+    public void GetData() {
+        plx[ID-1] = GetLocation().x;
+        ply[ID-1] = GetLocation().y;
         for(int i = 0; i < 8; i++)
             look[i] = Look(i);
-        updateBallLocation(player);
-        updateOppLocation(player);
+        updateBallLocation();
+        updateOppLocation();
     }
 
-    public void updateBallLocation(int player) {
+    public void updateBallLocation() {
         balldist = GetBallDistance();
         balldir = GetBallDirection();
 
@@ -354,36 +347,36 @@ public class Silverbacks extends Player
         int bally_temp = 0;
 
         if(look[0] == 9) {
-            ballx_temp = plx[player];
-            bally_temp = ply[player] - 1;
+            ballx_temp = plx[ID-1];
+            bally_temp = ply[ID-1] - 1;
         }
         else if(look[1] == 9) {
-            ballx_temp = plx[player] + 1;
-            bally_temp = ply[player] - 1;
+            ballx_temp = plx[ID-1] + 1;
+            bally_temp = ply[ID-1] - 1;
         }
         else if(look[2] == 9) {
-            ballx_temp = plx[player] + 1;
-            bally_temp = ply[player];
+            ballx_temp = plx[ID-1] + 1;
+            bally_temp = ply[ID-1];
         }
         else if(look[3] == 9) {
-            ballx_temp = plx[player] + 1;
-            bally_temp = ply[player] + 1;
+            ballx_temp = plx[ID-1] + 1;
+            bally_temp = ply[ID-1] + 1;
         }
         else if(look[4] == 9) {           
-            ballx_temp = plx[player];
-            bally_temp = ply[player] + 1;
+            ballx_temp = plx[ID-1];
+            bally_temp = ply[ID-1] + 1;
         }
         else if(look[5] == 9) {            
-            ballx_temp = plx[player] - 1;
-            bally_temp = ply[player] + 1;
+            ballx_temp = plx[ID-1] - 1;
+            bally_temp = ply[ID-1] + 1;
         }
         else if(look[6] == 9) {            
-            ballx_temp = plx[player] - 1;
-            bally_temp = ply[player];
+            ballx_temp = plx[ID-1] - 1;
+            bally_temp = ply[ID-1];
         }
         else if(look[7] == 9) {            
-            ballx_temp = plx[player] - 1;
-            bally_temp = ply[player] - 1;
+            ballx_temp = plx[ID-1] - 1;
+            bally_temp = ply[ID-1] - 1;
         }
         else {
             int balldist_sqrt2 = (int)(balldist*Math.sqrt(2));
@@ -392,36 +385,36 @@ public class Silverbacks extends Player
             weight = (int)(1200*Math.exp(-0.1*balldist));
 
             if(balldir == 0) {
-                ballx_temp = plx[player];
-                bally_temp = ply[player] - balldist;
+                ballx_temp = plx[ID-1];
+                bally_temp = ply[ID-1] - balldist;
             }
             if(balldir == 1) {
-                ballx_temp = plx[player] + balldist_sqrt2;
-                bally_temp = ply[player] - balldist_sqrt2;
+                ballx_temp = plx[ID-1] + balldist_sqrt2;
+                bally_temp = ply[ID-1] - balldist_sqrt2;
             }
             if(balldir == 2) {
-                ballx_temp = plx[player] + balldist;
-                bally_temp = ply[player];
+                ballx_temp = plx[ID-1] + balldist;
+                bally_temp = ply[ID-1];
             }
             if(balldir == 3) {
-                ballx_temp = plx[player] + balldist_sqrt2;
-                bally_temp = ply[player] + balldist_sqrt2;
+                ballx_temp = plx[ID-1] + balldist_sqrt2;
+                bally_temp = ply[ID-1] + balldist_sqrt2;
             }
             if(balldir == 4) {
-                ballx_temp = plx[player];
-                bally_temp = ply[player] + balldist;
+                ballx_temp = plx[ID-1];
+                bally_temp = ply[ID-1] + balldist;
             }
             if(balldir == 5) {
-                ballx_temp = plx[player] - balldist_sqrt2;
-                bally_temp = ply[player] + balldist_sqrt2;
+                ballx_temp = plx[ID-1] - balldist_sqrt2;
+                bally_temp = ply[ID-1] + balldist_sqrt2;
             }
             if(balldir == 6) {
-                ballx_temp = plx[player] - balldist;
-                bally_temp = ply[player];
+                ballx_temp = plx[ID-1] - balldist;
+                bally_temp = ply[ID-1];
             }
             if(balldir == 7) {
-                ballx_temp = plx[player] - balldist_sqrt2;
-                bally_temp = ply[player] - balldist_sqrt2;
+                ballx_temp = plx[ID-1] - balldist_sqrt2;
+                bally_temp = ply[ID-1] - balldist_sqrt2;
             }
         }
 
@@ -429,7 +422,7 @@ public class Silverbacks extends Player
         bally = bally*(1000-weight) + bally_temp*(weight);
     }
 
-    public void updateOppLocation(int player) {
+    public void updateOppLocation() {
         for(int i = 0; i < 4; i++) {
             oppdist[i] = GetOpponentDistance(i+1);
             oppdir[i] = GetOpponentDirection(i+1);
@@ -438,36 +431,36 @@ public class Silverbacks extends Player
             int oppy_temp = 0;
 
             if(look[0] == 9) {
-                oppx_temp = plx[player];
-                oppy_temp = ply[player] - 1;
+                oppx_temp = plx[ID-1];
+                oppy_temp = ply[ID-1] - 1;
             }
             else if(look[1] == 9) {
-                oppx_temp = plx[player] + 1;
-                oppy_temp = ply[player] - 1;
+                oppx_temp = plx[ID-1] + 1;
+                oppy_temp = ply[ID-1] - 1;
             }
             else if(look[2] == 9) {
-                oppx_temp = plx[player] + 1;
-                oppy_temp = ply[player];
+                oppx_temp = plx[ID-1] + 1;
+                oppy_temp = ply[ID-1];
             }
             else if(look[3] == 9) {
-                oppx_temp = plx[player] + 1;
-                oppy_temp = ply[player] + 1;
+                oppx_temp = plx[ID-1] + 1;
+                oppy_temp = ply[ID-1] + 1;
             }
             else if(look[4] == 9) {           
-                oppx_temp = plx[player];
-                oppy_temp = ply[player] + 1;
+                oppx_temp = plx[ID-1];
+                oppy_temp = ply[ID-1] + 1;
             }
             else if(look[5] == 9) {            
-                oppx_temp = plx[player] - 1;
-                oppy_temp = ply[player] + 1;
+                oppx_temp = plx[ID-1] - 1;
+                oppy_temp = ply[ID-1] + 1;
             }
             else if(look[6] == 9) {            
-                oppx_temp = plx[player] - 1;
-                oppy_temp = ply[player];
+                oppx_temp = plx[ID-1] - 1;
+                oppy_temp = ply[ID-1];
             }
             else if(look[7] == 9) {            
-                oppx_temp = plx[player] - 1;
-                oppy_temp = ply[player] - 1;
+                oppx_temp = plx[ID-1] - 1;
+                oppy_temp = ply[ID-1] - 1;
             }
             else {
                 int oppdist_sqrt2 = (int)(oppdist[i]*Math.sqrt(2));
@@ -476,36 +469,36 @@ public class Silverbacks extends Player
                 weight = (int)(1200*Math.exp(-0.1*oppdist[i]));
 
                 if(oppdir[i]== 0) {
-                    oppx_temp = plx[player];
-                    oppy_temp = ply[player] - oppdist[i];
+                    oppx_temp = plx[ID-1];
+                    oppy_temp = ply[ID-1] - oppdist[i];
                 }
                 if(oppdir[i]== 1) {
-                    oppx_temp = plx[player] + oppdist_sqrt2;
-                    oppy_temp = ply[player] - oppdist_sqrt2;
+                    oppx_temp = plx[ID-1] + oppdist_sqrt2;
+                    oppy_temp = ply[ID-1] - oppdist_sqrt2;
                 }
                 if(oppdir[i]== 2) {
-                    oppx_temp = plx[player] + oppdist[i];
-                    oppy_temp = ply[player];
+                    oppx_temp = plx[ID-1] + oppdist[i];
+                    oppy_temp = ply[ID-1];
                 }
                 if(oppdir[i]== 3) {
-                    oppx_temp = plx[player] + oppdist_sqrt2;
-                    oppy_temp = ply[player] + oppdist_sqrt2;
+                    oppx_temp = plx[ID-1] + oppdist_sqrt2;
+                    oppy_temp = ply[ID-1] + oppdist_sqrt2;
                 }
                 if(oppdir[i]== 4) {
-                    oppx_temp = plx[player];
-                    oppy_temp = ply[player] + oppdist[i];
+                    oppx_temp = plx[ID-1];
+                    oppy_temp = ply[ID-1] + oppdist[i];
                 }
                 if(oppdir[i]== 5) {
-                    oppx_temp = plx[player] - oppdist_sqrt2;
-                    oppy_temp = ply[player] + oppdist_sqrt2;
+                    oppx_temp = plx[ID-1] - oppdist_sqrt2;
+                    oppy_temp = ply[ID-1] + oppdist_sqrt2;
                 }
                 if(oppdir[i]== 6) {
-                    oppx_temp = plx[player] - oppdist[i];
-                    oppy_temp = ply[player];
+                    oppx_temp = plx[ID-1] - oppdist[i];
+                    oppy_temp = ply[ID-1];
                 }
                 if(oppdir[i]== 7) {
-                    oppx_temp = plx[player] - oppdist_sqrt2;
-                    oppy_temp = ply[player] - oppdist_sqrt2;
+                    oppx_temp = plx[ID-1] - oppdist_sqrt2;
+                    oppy_temp = ply[ID-1] - oppdist_sqrt2;
                 }
             }
 
