@@ -1,4 +1,4 @@
-
+import java.util.concurrent.TimeUnit;
 /**
  * Write a description of class Silverbacks here.
  *
@@ -83,14 +83,18 @@ public class Silverbacks extends Player
         }
         return Leader();
     }
-    
+
     public int Leader() {
         if(balldist == 1) {
             return SurroundBall();
         }
-        if(plx[ID-1] < ballx && Math.abs(ply[ID-1] - bally) == 1) {
-            if(look[EAST] == EMPTY)
+        if(balldist > 2.2 && balldist < 2.3) {
+            if((balldir == SOUTHEAST || balldir == NORTHEAST) && look[EAST] == EMPTY)
                 return EAST;
+            if(balldir == SOUTHWEST && look[SOUTH] == EMPTY)
+                return SOUTH;
+            if(balldir == NORTHWEST && look[NORTH] == EMPTY)
+                return NORTH;   
         }
         if(look[balldir] == EMPTY) {
             return balldir;
@@ -103,7 +107,7 @@ public class Silverbacks extends Player
                 return SOUTH;
             else if(look[WEST] == EMPTY)
                 return WEST;
-            }
+        }
         if(balldir == WEST) {
             if(look[NORTHWEST] == EMPTY)
                 return NORTHWEST;
@@ -118,57 +122,9 @@ public class Silverbacks extends Player
         }
         return PLAYER;        
     }
-    
-    public int Sweeper () {
-        int ew = -1;
-        int ns = -1;
 
-        /* Try to get into position */
-        if (Look(NORTH) == EMPTY && (ply[ID-1] > bally)) {
-            ns = NORTH;
-        }
-        if (Look(SOUTH) == EMPTY && (ply[ID-1] < bally)) {
-            ns = SOUTH;
-        }
-        if ((plx[ID-1] < ballx) && (ply[ID-1] == bally)) {
-            ns = SOUTH;
-        }
-        if (Look(WEST) == EMPTY && (plx[ID-1] > ballx + 6)) {
-            ew = WEST;
-        }
-        if (Look(EAST) == EMPTY && (plx[ID-1] < ballx + 6)) {
-            ew = EAST;
-        }
-
-        if ((ew == EAST) && (ns == NORTH)) {
-            return(NORTHEAST);
-        }
-        if ((ew == EAST) && (ns == SOUTH)) {
-            return(SOUTHEAST);
-        }
-        if ((ew == WEST) && (ns == NORTH)) {
-            return(NORTHWEST);
-        }
-        if ((ew == WEST) && (ns == SOUTH)) {
-            return(SOUTHWEST);
-        }
-        if (ew == EAST) {
-            return(EAST);
-        }
-        if (ew == WEST) {
-            return(WEST);
-        }
-        if (ns == NORTH) {
-            return(NORTH);
-        }
-        if (ns == SOUTH) {
-            return(SOUTH);
-        }
-
-        return(balldir);
-    }
-      
     //moves/kicks depending on where the ball is
+    //I think there should be more situations in which it kicks it
     public int SurroundBall() {
         boolean opp_in_way = false;
         int offset_from_east = balldir - EAST;
@@ -218,18 +174,42 @@ public class Silverbacks extends Player
         }
         //what to do here??
         else if(balldir == NORTH || balldir == SOUTH) {
+            System.out.println("North or south of ball");
             //if all opponents are far away go northeast or east
             int east_diagonal = EAST+offset_from_east/2;
             int west_diagonal = ((((EAST+3*offset_from_east/2) % 8) + 8) % 8);
+            boolean teammate_in_way_of_kick = false;
+            for(int i = 0; i < 4; i++) {
+                System.out.println(ply[i]);
+                if(ply[ID-1] - offset_from_east == ply[i])
+                    teammate_in_way_of_kick = true;
+            }
             //if there is an opponent to the northwest and no teammate to the northeast
-            if(look[east_diagonal] != TEAMMATE && look[west_diagonal] == OPPONENT)
-                //should make sure no opponent is there
-                return KICK;
-            if(look[east_diagonal] == EMPTY)
+            if(look[east_diagonal] != TEAMMATE && look[west_diagonal] == OPPONENT) {
+                if(!teammate_in_way_of_kick) {
+                    System.out.println("Kick1");
+                    return KICK;
+                }
+            }
+            if(look[WEST] == OPPONENT) {
+                boolean teammate_can_block = false;
+                for(int i = 0; i < 4; i++) {
+                    if(plx[ID-1] + 1 == plx[i] && ply[ID-1] - offset_from_east == ply[i])
+                        teammate_can_block = true;
+                }
+                if(!teammate_can_block && !teammate_in_way_of_kick) {
+                    System.out.println("Kick2");
+                    return KICK;
+                }
+            }
+            if(look[east_diagonal] == EMPTY) {
+                System.out.println("East Diagonal");
                 return east_diagonal;
-            else if(look[EAST] == EMPTY)
-                return EAST;    
-                
+            }
+            if(look[EAST] == EMPTY) {
+                System.out.println("East");                
+                return EAST;
+            }
         }
         //does nothing (PLAYER) if there's an opponent on the other side of the ball
         for(int i = 0; i < 4; i++) {
@@ -238,7 +218,7 @@ public class Silverbacks extends Player
         }
         return balldir;
     }
-    
+
     public int minOppdist() {
         int mindist = oppdist[0];
         for(int i = 1; i < 4; i++) {
