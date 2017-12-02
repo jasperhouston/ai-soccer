@@ -7,7 +7,6 @@
  */
 public class Silverbacks extends Player
 {
-    static public final int Sweeper = 1;
     static public final int NORTH = 0;
     static public final int NORTHEAST = 1;
     static public final int EAST = 2;
@@ -76,10 +75,70 @@ public class Silverbacks extends Player
 
     public int MakeMove(int player) {
         GetData(player);
+        if(balldist < 2) 
+            return Leader(player);
+        for(int i = 0; i < 4; i++) {
+            if(i != player && plx[player] <= plx[i])
+                return Leader(player);
+        }
+        return Leader(player);
+    }
+    
+    public int Leader(int player) {
         if(balldist == 1) {
             return SurroundBall(player);
         }
-        return GetBehindBall(player);
+        return GetBehindBall(player);        
+    }
+    
+    public int Sweeper (int player) {
+        int ew = -1;
+        int ns = -1;
+
+
+        /* Try to get into position */
+        if (Look(NORTH) == EMPTY && (ply[player] > bally)) {
+            ns = NORTH;
+        }
+        if (Look(SOUTH) == EMPTY && (ply[player] < bally)) {
+            ns = SOUTH;
+        }
+        if ((plx[player] < ballx) && (ply[player] == bally)) {
+            ns = SOUTH;
+        }
+        if (Look(WEST) == EMPTY && (plx[player] > ballx + 6)) {
+            ew = WEST;
+        }
+        if (Look(EAST) == EMPTY && (plx[player] < ballx + 6)) {
+            ew = EAST;
+        }
+
+        if ((ew == EAST) && (ns == NORTH)) {
+            return(NORTHEAST);
+        }
+        if ((ew == EAST) && (ns == SOUTH)) {
+            return(SOUTHEAST);
+        }
+        if ((ew == WEST) && (ns == NORTH)) {
+            return(NORTHWEST);
+        }
+        if ((ew == WEST) && (ns == SOUTH)) {
+            return(SOUTHWEST);
+        }
+        if (ew == EAST) {
+            return(EAST);
+        }
+        if (ew == WEST) {
+            return(WEST);
+        }
+        if (ns == NORTH) {
+            return(NORTH);
+        }
+        if (ns == SOUTH) {
+            return(SOUTH);
+        }
+
+        return(balldir);
     }
     
 
