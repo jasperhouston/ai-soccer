@@ -169,8 +169,8 @@ public class Silverbacks extends Player
                 return EAST+2*offset_from_east;
             else if(look[EAST-offset_from_east] == EMPTY)
                 return EAST-offset_from_east;
-            else if(look[(((EAST+3*offset_from_east) % 8) + 8) % 8] == EMPTY)
-                return (((EAST+3*offset_from_east/2) % 8) + 8) % 8;
+            else if(look[((EAST+3*offset_from_east)+ 8) % 8] == EMPTY)
+                return ((EAST+3*offset_from_east/2)+ 8) % 8;
         }
         //what to do here??
         else if(balldir == NORTH || balldir == SOUTH) {
