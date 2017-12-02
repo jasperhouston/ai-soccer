@@ -40,6 +40,7 @@ public class BlueDragons extends Player
     static int[] balldist = new int[4];
     static int[] balldir = new int[4];
     static int[] synchro = new int[4];
+    static int[] look = new int[8];
     
     static int ballx;
     static int bally;
@@ -404,107 +405,106 @@ public class BlueDragons extends Player
         return(GetBallDirection());
     }
 
-    public void updateBallLocation() {
+    public void updateBallLocation(int player) {
          int weight;
          int total_weight;
          int ballx_temp;
          int bally_temp;
          ballx = 0;
          bally = 0;
-         for(int player = 0; player < 4; player ++) {
-             if(ook[0] == 9) {
-                weight= 1000;
-                ballx_temp = plx[player];
-                bally_temp = ply[player] - 1;
-             }
-             else if(look[1] == 9) {
-                weight= 1000;
-                ballx_temp = plx[player] + 1;
-                bally_temp = ply[player] - 1;
-             }
-             else if(look[2] == 9) {
-                weight= 1000;
-                ballx_temp = plx[player] + 1;
-                bally_temp = ply[player];
-             }
-             else if(look[3] == 9) {
-                weight= 1000;
-                ballx_temp = plx[player] + 1;
-                bally_temp = ply[player] + 1;
-             }
-             else if(look[4] == 9) {
-                weight= 1000;
-                ballx_temp = plx[player];
-                bally_temp = ply[player] + 1;
-             }
-             else if(look[5] == 9) {
-                weight= 1000;
-                ballx_temp = plx[player] - 1;
-                bally_temp = ply[player] + 1;
-             }
-             else if(look[6] == 9) {
-                weight= 1000;
-                ballx_temp = plx[player] - 1;
-                bally_temp = ply[player];
-             }
-             else if(look[7] == 9) {
-                weight= 10;
-                ballx_temp = plx[player] - 1;
-                bally_temp = ply[player] - 1;
-             }
-             else {
-                 int distToB = balldist[player];
-                 int distToB_sqrt2 = (int)(distToB*Math.sqrt(2));
-                 if(distToB < 4)
-                    weight= 10;
-                 else if(distToB < 8)
-                    weight= 8;
-                 else if(distToB < 12)
-                    weight= 6;
-                 else if(distToB < 16)
-                    weight= 4;
-                 else if(distToB < 20)
-                    weight= 2;
-                 else
-                    weight= 1;
-                 int dirToB = balldir[player];
-                 if(dirToB == 0) {
-                    ballx_temp = plx[player];
-                    bally_temp = ply[player] - distToB;
-                 }
-                 if(dirToB == 1) {
-                    ballx_temp = plx[player] + distToB_sqrt2;
-                    bally_temp = ply[player] - distToB_sqrt2;
-                 }
-                 if(dirToB == 2) {
-                    ballx_temp = plx[player] + distToB;
-                    bally_temp = ply[player];
-                 }
-                 if(dirToB == 3) {
-                    ballx_temp = plx[player] + distToB_sqrt2;
-                    bally_temp = ply[player] + distToB_sqrt2;
-                 }
-                 if(dirToB == 4) {
-                    ballx_temp = plx[player];
-                    bally_temp = ply[player] + distToB;
-                 }
-                 if(dirToB == 5) {
-                    ballx_temp = plx[player] - distToB_sqrt2;
-                    bally_temp = ply[player] + distToB_sqrt2;
-                 }
-                 if(dirToB == 6) {
-                    ballx_temp = plx[player] - distToB;
-                    bally_temp = ply[player];
-                 }
-                 if(dirToB == 7) {
-                    ballx_temp = plx[player] - distToB_sqrt2;
-                    bally_temp = ply[player] - distToB_sqrt2;
-                 }
-             }
-             ballx += weight*ballx_temp;
-             bally += weight*bally_temp;
-             total_weight += weight;
+
+         if(look[0] == 9) {
+            weight= 1000;
+            ballx_temp = plx[player];
+            bally_temp = ply[player] - 1;
          }
+         else if(look[1] == 9) {
+            weight= 1000;
+            ballx_temp = plx[player] + 1;
+            bally_temp = ply[player] - 1;
+         }
+         else if(look[2] == 9) {
+            weight= 1000;
+            ballx_temp = plx[player] + 1;
+            bally_temp = ply[player];
+         }
+         else if(look[3] == 9) {
+            weight= 1000;
+            ballx_temp = plx[player] + 1;
+            bally_temp = ply[player] + 1;
+         }
+         else if(look[4] == 9) {
+            weight= 1000;
+            ballx_temp = plx[player];
+            bally_temp = ply[player] + 1;
+         }
+         else if(look[5] == 9) {
+            weight= 1000;
+            ballx_temp = plx[player] - 1;
+            bally_temp = ply[player] + 1;
+         }
+         else if(look[6] == 9) {
+            weight= 1000;
+            ballx_temp = plx[player] - 1;
+            bally_temp = ply[player];
+         }
+         else if(look[7] == 9) {
+            weight= 10;
+            ballx_temp = plx[player] - 1;
+            bally_temp = ply[player] - 1;
+         }
+         else {
+             int distToB = balldist[player];
+             int distToB_sqrt2 = (int)(distToB*Math.sqrt(2));
+             if(distToB < 4)
+                weight= 10;
+             else if(distToB < 8)
+                weight= 8;
+             else if(distToB < 12)
+                weight= 6;
+             else if(distToB < 16)
+                weight= 4;
+             else if(distToB < 20)
+                weight= 2;
+             else
+                weight= 1;
+             int dirToB = balldir[player];
+             if(dirToB == 0) {
+                ballx_temp = plx[player];
+                bally_temp = ply[player] - distToB;
+             }
+             if(dirToB == 1) {
+                ballx_temp = plx[player] + distToB_sqrt2;
+                bally_temp = ply[player] - distToB_sqrt2;
+             }
+             if(dirToB == 2) {
+                ballx_temp = plx[player] + distToB;
+                bally_temp = ply[player];
+             }
+             if(dirToB == 3) {
+                ballx_temp = plx[player] + distToB_sqrt2;
+                bally_temp = ply[player] + distToB_sqrt2;
+             }
+             if(dirToB == 4) {
+                ballx_temp = plx[player];
+                bally_temp = ply[player] + distToB;
+             }
+             if(dirToB == 5) {
+                ballx_temp = plx[player] - distToB_sqrt2;
+                bally_temp = ply[player] + distToB_sqrt2;
+             }
+             if(dirToB == 6) {
+                ballx_temp = plx[player] - distToB;
+                bally_temp = ply[player];
+             }
+             if(dirToB == 7) {
+                ballx_temp = plx[player] - distToB_sqrt2;
+                bally_temp = ply[player] - distToB_sqrt2;
+             }
+         }
+         ballx += weight*ballx_temp;
+         bally += weight*bally_temp;
+         total_weight += weight;
          ballx = ballx/total_weight;
          bally = bally/total_weight;
     }

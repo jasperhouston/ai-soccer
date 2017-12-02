@@ -57,7 +57,7 @@ public class OrangeCrush extends Player {
         /* Generate orders */
         Behave();
         for (int i = 0; i < 4; i++)
-        synchro[i] = 1;
+            synchro[i] = 1;
         switch (roles[0]) {
             case Lead: action =  Lead();
             break;
@@ -135,24 +135,24 @@ public class OrangeCrush extends Player {
     }
 
     public void WonPoint () {};
+
     public void LostPoint () {};
+
     public void GameOver () {};
 
     public int HaveBall(int id) {
         int BallDir = GetBallDirection();
         if ((GetBallDistance() == 1) &&
         ((BallDir == EAST) || (BallDir == NORTHEAST)
-        || (BallDir == SOUTHEAST) || (BallDir == NORTH)
-        || (BallDir == SOUTH))) {
+            || (BallDir == SOUTHEAST) || (BallDir == NORTH)
+            || (BallDir == SOUTH))) {
             haveBall = CONTROL_TIME;
             return 1;
         }
         return 0;
     }
 
-
     public void Behave () {
-
         int newl = 0;
         int i;
         cycle = (cycle + 1) % 4;
@@ -163,406 +163,405 @@ public class OrangeCrush extends Player {
         /* Whoever has the ball gets to be the leader */
         for ( i = 0; i < 4; i++) {
             if (balld[i] < balld[newl])
-            newl = i;
+                newl = i;
             if (ball[i] == 1) {
                 Regroup(i);
                 i = 5;
             }
         }
         if (i == 4) /* No one was on the ball, pick the closest guy */
-        Regroup(newl);
-        /*if (haveBall <= 0) {
-        leader = 0;
-    } */
-}
-
-public void Regroup (int newLead) {
-    int i, score, good;
-    good = 0;   /* Make Java happy */
-    for (i=0; i<4; i++) {
-        roles[i] = 0;
+            Regroup(newl);
+            /*if (haveBall <= 0) {
+            leader = 0;
+        } */
     }
 
-    leader = newLead;
-    roles[leader] = Lead;
+    public void Regroup (int newLead) {
+        int i, score, good;
+        good = 0;   /* Make Java happy */
+        for (i=0; i<4; i++) {
+            roles[i] = 0;
+        }
 
-    /* southernmost unassigned player is south wing */
-    score = -1;
-    for (i=0; i<4; i++) {
-        if (roles[i] == 0) {
-            if (ply[i] > score) {
-                score = ply[i];
-                good = i;
+        leader = newLead;
+        roles[leader] = Lead;
+
+        /* southernmost unassigned player is south wing */
+        score = -1;
+        for (i=0; i<4; i++) {
+            if (roles[i] == 0) {
+                if (ply[i] > score) {
+                    score = ply[i];
+                    good = i;
+                }
             }
         }
-    }
-    roles[good] = SouthWing;
+        roles[good] = SouthWing;
 
-    /* northernmost unassigned player is north wing */
-    score = 10000;
-    for (i=0; i<4; i++) {
-        if (roles[i] == 0) {
-            if (ply[i] < score) {
-                score = ply[i];
-                good = i;
+        /* northernmost unassigned player is north wing */
+        score = 10000;
+        for (i=0; i<4; i++) {
+            if (roles[i] == 0) {
+                if (ply[i] < score) {
+                    score = ply[i];
+                    good = i;
+                }
             }
         }
-    }
-    roles[good] = NorthWing;
+        roles[good] = NorthWing;
 
-    /* easternmost unassigned player is Sweeper */
-    score = -1;
-    for (i=0; i<4; i++) {
-        if (roles[i] == 0) {
-            if (plx[i] > score) {
-                score = plx[i];
-                good = i;
+        /* easternmost unassigned player is Sweeper */
+        score = -1;
+        for (i=0; i<4; i++) {
+            if (roles[i] == 0) {
+                if (plx[i] > score) {
+                    score = plx[i];
+                    good = i;
+                }
             }
         }
-    }
-    roles[good] = Sweeper;
-}
-
-public int Lead () {
-    int i, kickSouth;
-    int x = GetLocation().x;
-    int y = GetLocation().y;
-
-    /* If lead is east of the ball and an opponent is around, get the ball
-    out of here */
-    if ((GetOpponentDistance(1) < 2) &&
-    ((Look(SOUTHWEST) == BALL) || (Look(WEST) == BALL) || (Look(NORTHWEST) == BALL)))
-    return KICK;
-
-    /* Try to kick away from the bulk of the players */
-    kickSouth = 0;
-    for (i=0; i<4; i++) {
-        if ((y < FieldY() - 4) && (ply[i] < y)) {
-            kickSouth++;
-        }
-        if ((y > 5) && (ply[i] > y)) {
-            kickSouth--;
-        }
+        roles[good] = Sweeper;
     }
 
-    /* Kick south if we "should" kick south or if we are near defending goal */
-    if (Look(SOUTHWEST) == BALL) {
-        if ((x > 3 * FieldX() / 4) || (kickSouth > 0)) {
-            return KICK;
-        }
-        /* else try to move to kick straight west */
-        return SOUTH;
-    }
+    public int Lead () {
+        int i, kickSouth;
+        int x = GetLocation().x;
+        int y = GetLocation().y;
 
-    /* Similarly for north */
-    if (Look(NORTH) == BALL) {
-        if ((x > 3 * FieldX() / 4) || (kickSouth < 0)) {
-            return KICK;
-        }
-        return NORTH;
-    }
+        /* If lead is east of the ball and an opponent is around, get the ball
+        out of here */
+        if ((GetOpponentDistance(1) < 2) &&
+        ((Look(SOUTHWEST) == BALL) || (Look(WEST) == BALL) || (Look(NORTHWEST) == BALL)))
+        return KICK;
 
-    if (Look(WEST) == BALL) {
-        /* If there is a strong preference to kick the ball north or south,
-        try to move to do so */
-        if (kickSouth >= 3) {
-            return NORTH;
+        /* Try to kick away from the bulk of the players */
+        kickSouth = 0;
+        for (i=0; i<4; i++) {
+            if ((y < FieldY() - 4) && (ply[i] < y)) {
+                kickSouth++;
+            }
+            if ((y > 5) && (ply[i] > y)) {
+                kickSouth--;
+            }
         }
-        if (kickSouth <= -3) {
+
+        /* Kick south if we "should" kick south or if we are near defending goal */
+        if (Look(SOUTHWEST) == BALL) {
+            if ((x > 3 * FieldX() / 4) || (kickSouth > 0)) {
+                return KICK;
+            }
+            /* else try to move to kick straight west */
             return SOUTH;
         }
-        /* Otherwise kick toward the goal */
-        return KICK;
-    }
 
-    if (Look(NORTH) == BALL) {
-        /* If an opponent can kick toward my goal, try to kick the ball
-        away */
-        if (Look(WEST) == OPPONENT && Look(NORTHWEST) == OPPONENT) {
+        /* Similarly for north */
+        if (Look(NORTH) == BALL) {
+            if ((x > 3 * FieldX() / 4) || (kickSouth < 0)) {
+                return KICK;
+            }
+            return NORTH;
+        }
+
+        if (Look(WEST) == BALL) {
+            /* If there is a strong preference to kick the ball north or south,
+            try to move to do so */
+            if (kickSouth >= 3) {
+                return NORTH;
+            }
+            if (kickSouth <= -3) {
+                return SOUTH;
+            }
+            /* Otherwise kick toward the goal */
             return KICK;
         }
 
-        /* If ball is near my defending goal, really try to kick it */
-        if ((x > 3 * FieldX() / 4) &&
-        (Look(WEST) == OPPONENT || Look(NORTHWEST) == OPPONENT)) {
-            return KICK;
+        if (Look(NORTH) == BALL) {
+            /* If an opponent can kick toward my goal, try to kick the ball
+            away */
+            if (Look(WEST) == OPPONENT && Look(NORTHWEST) == OPPONENT) {
+                return KICK;
+            }
+
+            /* If ball is near my defending goal, really try to kick it */
+            if ((x > 3 * FieldX() / 4) &&
+            (Look(WEST) == OPPONENT || Look(NORTHWEST) == OPPONENT)) {
+                return KICK;
+            }
+
+            /* If there are no opponents and I want to kick south, move to try
+            to do so */
+            if ((kickSouth >= 0) && Look(NORTHEAST) == EMPTY) {
+                return(NORTHEAST);
+            }
+
+            /* else if I want to kick north, just move E so I can kick NORTHWEST */
+            return(EAST);
         }
 
-        /* If there are no opponents and I want to kick south, move to try
-        to do so */
-        if ((kickSouth >= 0) && Look(NORTHEAST) == EMPTY) {
-            return(NORTHEAST);
+        if (Look(NORTHEAST) == BALL) {
+            /* If an opponent can get to the ball, get between it and the ball */
+            if (Look(NORTH) == EMPTY && (Look(NORTHWEST) == OPPONENT)) {
+                return(NORTH);
+            }
+            /* else get between the ball and the defending goal */
+            return(EAST);
         }
 
-        /* else if I want to kick north, just move E so I can kick NORTHWEST */
-        return(EAST);
-    }
+        if (Look(EAST) == BALL) {
+            /* Get into position to kick the ball, if possible */
+            if ((kickSouth > 0) && Look(NORTHEAST) == EMPTY) {
+                return(NORTHEAST);
+            }
+            if ((kickSouth < 0) && Look(SOUTHEAST) == EMPTY) {
+                return(SOUTHEAST);
+            }
 
-    if (Look(NORTHEAST) == BALL) {
-        /* If an opponent can get to the ball, get between it and the ball */
-        if (Look(NORTH) == EMPTY && (Look(NORTHWEST) == OPPONENT)) {
-            return(NORTH);
-        }
-        /* else get between the ball and the defending goal */
-        return(EAST);
-    }
+            /* else try to block any opponents */
+            if (Look(WEST) == OPPONENT) {
+                return(WEST);
+            }
 
-    if (Look(EAST) == BALL) {
-        /* Get into position to kick the ball, if possible */
-        if ((kickSouth > 0) && Look(NORTHEAST) == EMPTY) {
-            return(NORTHEAST);
-        }
-        if ((kickSouth < 0) && Look(SOUTHEAST) == EMPTY) {
-            return(SOUTHEAST);
-        }
-
-        /* else try to block any opponents */
-        if (Look(WEST) == OPPONENT) {
-            return(WEST);
-        }
-
-        /* else just move out of the way */
-        if (Look(NORTH) == EMPTY) {
-            return(NORTH);
-        }
-        return(SOUTH);
-    }
-
-    if (Look(SOUTHEAST) == BALL) {
-        /* If an opponent can get to the ball, get between it and the ball */
-        if (Look(SOUTH) == EMPTY && (Look(SOUTHWEST) == OPPONENT)) {
+            /* else just move out of the way */
+            if (Look(NORTH) == EMPTY) {
+                return(NORTH);
+            }
             return(SOUTH);
         }
-        /* else get between the ball and the defending goal */
-        return(EAST);
+
+        if (Look(SOUTHEAST) == BALL) {
+            /* If an opponent can get to the ball, get between it and the ball */
+            if (Look(SOUTH) == EMPTY && (Look(SOUTHWEST) == OPPONENT)) {
+                return(SOUTH);
+            }
+            /* else get between the ball and the defending goal */
+            return(EAST);
+        }
+
+        if (Look(SOUTH) == BALL) {
+            /* If an opponent can kick toward my goal, try to kick the ball
+            away */
+            if (Look(WEST) == OPPONENT && (Look(SOUTHWEST) == OPPONENT)) {
+                return(KICK);
+            }
+
+            /* If ball is near my defending goal, really try to kick it */
+            if ((x > 3 * FieldX() / 4) &&
+            (Look(WEST) == OPPONENT || Look(SOUTHWEST) == OPPONENT)) {
+                return(KICK);
+            }
+
+            /* If there are no opponents and I want to kick south, move to try
+            to do so */
+            if ((kickSouth >= 0) && Look(SOUTHEAST) == EMPTY) {
+                return(SOUTHEAST);
+            }
+
+            /* else if I want to kick north, just move E so I can kick NORTHWEST */
+            return(EAST);
+        }
+
+        /* else just move toward the ball */
+        return(GetBallDirection());
     }
 
-    if (Look(SOUTH) == BALL) {
-        /* If an opponent can kick toward my goal, try to kick the ball
-        away */
-        if (Look(WEST) == OPPONENT && (Look(SOUTHWEST) == OPPONENT)) {
-            return(KICK);
+    public int NorthWing () {
+        int x;
+        int y;
+        int ew = -1;
+        int ns = -1;
+        x = GetLocation().x;
+        y = GetLocation().y;
+
+        /* If near the ball, act like a leader */
+        if (GetBallDistance() < BALLDISTANCETOLEAD) {
+            return(Lead());
         }
 
-        /* If ball is near my defending goal, really try to kick it */
-        if ((x > 3 * FieldX() / 4) &&
-        (Look(WEST) == OPPONENT || Look(SOUTHWEST) == OPPONENT)) {
-            return(KICK);
+        /* Try to get into position */
+        if (Look(NORTH) == EMPTY && (y > ply[leader] - WINGSPAN)) {
+            ns = NORTH;
+        }
+        if (Look(SOUTH) == EMPTY && (y < ply[leader] - WINGSPAN)) {
+            ns = SOUTH;
+        }
+        if ((x < plx[leader]) && (y == ply[leader])) {
+            ns = SOUTH;
+        }
+        if (Look(WEST) == EMPTY && (x > plx[leader] + WINGBACK)) {
+            ew = WEST;
+        }
+        if (Look(EAST) == EMPTY && (x < plx[leader] + WINGBACK)) {
+            ew = EAST;
         }
 
-        /* If there are no opponents and I want to kick south, move to try
-        to do so */
-        if ((kickSouth >= 0) && Look(SOUTHEAST) == EMPTY) {
+        if ((ew == EAST) && (ns == NORTH)) {
+            return(NORTHEAST);
+        }
+        if ((ew == EAST) && (ns == SOUTH)) {
             return(SOUTHEAST);
         }
-
-        /* else if I want to kick north, just move E so I can kick NORTHWEST */
-        return(EAST);
+        if ((ew == WEST) && (ns == NORTH)) {
+            return(NORTHWEST);
+        }
+        if ((ew == WEST) && (ns == SOUTH)) {
+            return(SOUTHWEST);
+        }
+        if (ew == EAST) {
+            return(EAST);
+        }
+        if (ew == WEST) {
+            return(WEST);
+        }
+        if (ns == NORTH) {
+            return(NORTH);
+        }
+        if (ns == SOUTH) {
+            return(SOUTH);
+        }
+        return(GetBallDirection());
     }
 
-    /* else just move toward the ball */
-    return(GetBallDirection());
-}
+    public int SouthWing () {
+        int x;
+        int y;
+        int ew = -1;
+        int ns = -1;
+        x = GetLocation().x;
+        y = GetLocation().y;
 
-public int NorthWing () {
-    int x;
-    int y;
-    int ew = -1;
-    int ns = -1;
-    x = GetLocation().x;
-    y = GetLocation().y;
+        /* If near the ball, act like a leader */
+        if (GetBallDistance() < BALLDISTANCETOLEAD) {
+            return(Lead());
+        }
 
-    /* If near the ball, act like a leader */
-    if (GetBallDistance() < BALLDISTANCETOLEAD) {
-        return(Lead());
-    }
+        /* Try to get into position */
+        if (Look(NORTH) == EMPTY && (y > ply[leader] + WINGSPAN)) {
+            ns = NORTH;
+        }
+        if (Look(SOUTH) == EMPTY && (y < ply[leader] + WINGSPAN)) {
+            ns = SOUTH;
+        }
+        if ((x < plx[leader]) && (y == ply[leader])) {
+            ns = NORTH;
+        }
+        if (Look(WEST) == EMPTY && (x > plx[leader] + WINGBACK)) {
+            ew = WEST;
+        }
+        if (Look(EAST) == EMPTY && (x < plx[leader] + WINGBACK)) {
+            ew = EAST;
+        }
 
-    /* Try to get into position */
-    if (Look(NORTH) == EMPTY && (y > ply[leader] - WINGSPAN)) {
-        ns = NORTH;
-    }
-    if (Look(SOUTH) == EMPTY && (y < ply[leader] - WINGSPAN)) {
-        ns = SOUTH;
-    }
-    if ((x < plx[leader]) && (y == ply[leader])) {
-        ns = SOUTH;
-    }
-    if (Look(WEST) == EMPTY && (x > plx[leader] + WINGBACK)) {
-        ew = WEST;
-    }
-    if (Look(EAST) == EMPTY && (x < plx[leader] + WINGBACK)) {
-        ew = EAST;
-    }
-
-    if ((ew == EAST) && (ns == NORTH)) {
-        return(NORTHEAST);
-    }
-    if ((ew == EAST) && (ns == SOUTH)) {
-        return(SOUTHEAST);
-    }
-    if ((ew == WEST) && (ns == NORTH)) {
-        return(NORTHWEST);
-    }
-    if ((ew == WEST) && (ns == SOUTH)) {
-        return(SOUTHWEST);
-    }
-    if (ew == EAST) {
-        return(EAST);
-    }
-    if (ew == WEST) {
-        return(WEST);
-    }
-    if (ns == NORTH) {
-        return(NORTH);
-    }
-    if (ns == SOUTH) {
-        return(SOUTH);
-    }
-    return(GetBallDirection());
-}
-
-public int SouthWing () {
-    int x;
-    int y;
-    int ew = -1;
-    int ns = -1;
-    x = GetLocation().x;
-    y = GetLocation().y;
-
-    /* If near the ball, act like a leader */
-    if (GetBallDistance() < BALLDISTANCETOLEAD) {
-        return(Lead());
+        if ((ew == EAST) && (ns == NORTH)) {
+            return(NORTHEAST);
+        }
+        if ((ew == EAST) && (ns == SOUTH)) {
+            return(SOUTHEAST);
+        }
+        if ((ew == WEST) && (ns == NORTH)) {
+            return(NORTHWEST);
+        }
+        if ((ew == WEST) && (ns == SOUTH)) {
+            return(SOUTHWEST);
+        }
+        if (ew == EAST) {
+            return(EAST);
+        }
+        if (ew == WEST) {
+            return(WEST);
+        }
+        if (ns == NORTH) {
+            return(NORTH);
+        }
+        if (ns == SOUTH) {
+            return(SOUTH);
+        }
+        return(GetBallDirection());
     }
 
-    /* Try to get into position */
-    if (Look(NORTH) == EMPTY && (y > ply[leader] + WINGSPAN)) {
-        ns = NORTH;
-    }
-    if (Look(SOUTH) == EMPTY && (y < ply[leader] + WINGSPAN)) {
-        ns = SOUTH;
-    }
-    if ((x < plx[leader]) && (y == ply[leader])) {
-        ns = NORTH;
-    }
-    if (Look(WEST) == EMPTY && (x > plx[leader] + WINGBACK)) {
-        ew = WEST;
-    }
-    if (Look(EAST) == EMPTY && (x < plx[leader] + WINGBACK)) {
-        ew = EAST;
+    public int Rear() {
+        return Lead();
     }
 
-    if ((ew == EAST) && (ns == NORTH)) {
-        return(NORTHEAST);
-    }
-    if ((ew == EAST) && (ns == SOUTH)) {
-        return(SOUTHEAST);
-    }
-    if ((ew == WEST) && (ns == NORTH)) {
-        return(NORTHWEST);
-    }
-    if ((ew == WEST) && (ns == SOUTH)) {
-        return(SOUTHWEST);
-    }
-    if (ew == EAST) {
-        return(EAST);
-    }
-    if (ew == WEST) {
-        return(WEST);
-    }
-    if (ns == NORTH) {
-        return(NORTH);
-    }
-    if (ns == SOUTH) {
-        return(SOUTH);
-    }
-    return(GetBallDirection());
-}
+    public int Sweeper () {
+        int x;
+        int y;
+        int ew = -1;
+        int ns = -1;
+        x = GetLocation().x;
+        y = GetLocation().y;
 
-public int Rear() {
-    return Lead();
-}
+        /* If near the ball, act like a leader */
+        if (GetBallDistance() < BALLDISTANCETOLEAD) {
+            return(Lead());
+        }
 
-public int Sweeper () {
-    int x;
-    int y;
-    int ew = -1;
-    int ns = -1;
-    x = GetLocation().x;
-    y = GetLocation().y;
+        /* Try to get into position */
+        if (Look(NORTH) == EMPTY && (y > ply[leader])) {
+            ns = NORTH;
+        }
+        if (Look(SOUTH) == EMPTY && (y < ply[leader])) {
+            ns = SOUTH;
+        }
+        if ((x < plx[leader]) && (y == ply[leader])) {
+            ns = SOUTH;
+        }
 
-    /* If near the ball, act like a leader */
-    if (GetBallDistance() < BALLDISTANCETOLEAD) {
-        return(Lead());
-    }
+        if (Look(WEST) == EMPTY && (x > plx[leader] + SWEEPERDISTBACK)) {
+            ew = WEST;
+        }
+        if (Look(EAST) == EMPTY && (x < plx[leader] + SWEEPERDISTBACK)) {
+            ew = EAST;
+        }
 
-    /* Try to get into position */
-    if (Look(NORTH) == EMPTY && (y > ply[leader])) {
-        ns = NORTH;
-    }
-    if (Look(SOUTH) == EMPTY && (y < ply[leader])) {
-        ns = SOUTH;
-    }
-    if ((x < plx[leader]) && (y == ply[leader])) {
-        ns = SOUTH;
-    }
+        // // if ball is within a certain range of the goal, get between the ball and the goal
+        //     if (Look(NORTH) == EMPTY && (GetBallDirection() == NORTH || GetBallDirection() == NORTHWEST || GetBallDirection() == NORTHEAST)) {
+        //         ns = NORTH;
+        //     }
+        //     if (Look(SOUTH) == EMPTY && (GetBallDirection() == SOUTH || GetBallDirection() == SOUTHWEST || GetBallDirection() == SOUTHEAST)) {
+        //         ns = SOUTH;
+        //     }
 
+        if ((ew == EAST) && (ns == NORTH)) {
+            return(NORTHEAST);
+        }
+        if ((ew == EAST) && (ns == SOUTH)) {
+            return(SOUTHEAST);
+        }
+        if ((ew == WEST) && (ns == NORTH)) {
+            return(NORTHWEST);
+        }
+        if ((ew == WEST) && (ns == SOUTH)) {
+            return(SOUTHWEST);
+        }
+        if (ew == EAST) {
+            return(EAST);
+        }
+        if (ew == WEST) {
+            return(WEST);
+        }
+        if (ns == NORTH) {
+            return(NORTH);
+        }
+        if (ns == SOUTH) {
+            return(SOUTH);
+        }
 
-    if (Look(WEST) == EMPTY && (x > plx[leader] + SWEEPERDISTBACK)) {
-        ew = WEST;
-    }
-    if (Look(EAST) == EMPTY && (x < plx[leader] + SWEEPERDISTBACK)) {
-        ew = EAST;
-    }
-
-    // // if ball is within a certain range of the goal, get between the ball and the goal
-    //     if (Look(NORTH) == EMPTY && (GetBallDirection() == NORTH || GetBallDirection() == NORTHWEST || GetBallDirection() == NORTHEAST)) {
-    //         ns = NORTH;
-    //     }
-    //     if (Look(SOUTH) == EMPTY && (GetBallDirection() == SOUTH || GetBallDirection() == SOUTHWEST || GetBallDirection() == SOUTHEAST)) {
-    //         ns = SOUTH;
-    //     }
-
-    if ((ew == EAST) && (ns == NORTH)) {
-        return(NORTHEAST);
-    }
-    if ((ew == EAST) && (ns == SOUTH)) {
-        return(SOUTHEAST);
-    }
-    if ((ew == WEST) && (ns == NORTH)) {
-        return(NORTHWEST);
-    }
-    if ((ew == WEST) && (ns == SOUTH)) {
-        return(SOUTHWEST);
-    }
-    if (ew == EAST) {
-        return(EAST);
-    }
-    if (ew == WEST) {
-        return(WEST);
-    }
-    if (ns == NORTH) {
-        return(NORTH);
-    }
-    if (ns == SOUTH) {
-        return(SOUTH);
+        return(GetBallDirection());
     }
 
-    return(GetBallDirection());
-}
-
-public int getAction() {
-    switch(ID)
-    {
-        case 1:
-        return Player1();
-        case 2:
-        return Player2();
-        case 3:
-        return Player3();
-        case 4:
-        return Player4();
+    public int getAction() {
+        switch(ID)
+        {
+            case 1:
+            return Player1();
+            case 2:
+            return Player2();
+            case 3:
+            return Player3();
+            case 4:
+            return Player4();
+        }
+        return BALL;
     }
-    return BALL;
-}
 
 }
