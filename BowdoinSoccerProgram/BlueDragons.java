@@ -30,21 +30,21 @@ public class BlueDragons extends Player
     static int cycle;
     static int haveBall;
     static int leader;
-    
+
     static int[] plx = new int[4];
     static int[] ply = new int[4];
 
-    
+
     static int[] roles = new int[4];
     static int[] ballhave = new int[4];
     static int[] balldist = new int[4];
     static int[] balldir = new int[4];
     static int[] synchro = new int[4];
     static int[] look = new int[8];
-    
+
     static int ballx;
     static int bally;
-    
+
     static int[] opx = new int[4];
     static int[] opy = new int[4];
 
@@ -78,9 +78,9 @@ public class BlueDragons extends Player
         ballhave[player] = HaveBall(player);
         balldist[player] = GetBallDistance();
         balldir[player] = GetBallDirection();
-        
+
         /* Generate orders */
-        if(player == 0) {    
+        if(player == 0) {
             Behave();
             for(int i = 0; i < 4; i++)
                 synchro[i] = 1;
@@ -88,7 +88,7 @@ public class BlueDragons extends Player
         else {
             synchro[player] = 0;
         }
-        
+
         switch (roles[player]) {
             case Lead: action =  Lead();
             break;
@@ -99,9 +99,9 @@ public class BlueDragons extends Player
             case Sweeper: action =  Sweeper();
             break;
         }
-        return action;        
+        return action;
     }
-    
+
     public int Player1() {
         return InitializePlayer(0);
     }
@@ -117,7 +117,7 @@ public class BlueDragons extends Player
     public int Player4() {
         return InitializePlayer(3);
     }
-    
+
     public void WonPoint () {};
 
     public void LostPoint () {};
@@ -187,7 +187,7 @@ public class BlueDragons extends Player
                 break;
             }
         }
-        
+
         for (i=0; i<4; i++) {
             if (roles[i] == 0) {
                 roles[i] = Third;
@@ -406,10 +406,10 @@ public class BlueDragons extends Player
     }
 
     public void updateBallLocation(int player) {
-         int weight;
-         int total_weight;
-         int ballx_temp;
-         int bally_temp;
+         int weight = 0;
+         int total_weight = 0;
+         int ballx_temp = 0;
+         int bally_temp = 0;
          ballx = 0;
          bally = 0;
 
