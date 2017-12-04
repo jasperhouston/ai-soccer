@@ -510,14 +510,6 @@ public class OrangeCrush extends Player {
             ew = EAST;
         }
 
-        // // if ball is within a certain range of the goal, get between the ball and the goal
-        //     if (Look(NORTH) == EMPTY && (GetBallDirection() == NORTH || GetBallDirection() == NORTHWEST || GetBallDirection() == NORTHEAST)) {
-        //         ns = NORTH;
-        //     }
-        //     if (Look(SOUTH) == EMPTY && (GetBallDirection() == SOUTH || GetBallDirection() == SOUTHWEST || GetBallDirection() == SOUTHEAST)) {
-        //         ns = SOUTH;
-        //     }
-
         if ((ew == EAST) && (ns == NORTH)) {
             return(NORTHEAST);
         }
