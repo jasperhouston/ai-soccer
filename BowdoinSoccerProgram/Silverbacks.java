@@ -89,21 +89,24 @@ public class Silverbacks extends Player
         if(balldist == 1) {
             return SurroundBall();
         }
-        /*
-        if(balldist == 2.2) {
-            if((balldir == SOUTHEAST || balldir == NORTHEAST) && look[EAST] == EMPTY)
-                return EAST;
-            if(balldir == SOUTHWEST && look[SOUTH] == EMPTY)
-                return SOUTH;
-            if(balldir == NORTHWEST && look[NORTH] == EMPTY)
-                return NORTH;   
-        }
-        */
+        return GoTowardsBall();
+    }
+    
+    public int GoTowardsBall() {
         if(look[balldir] == EMPTY) {
             return balldir;
         }
-        if(balldir%4 == 0) {
-            return InterceptBall();
+        if(balldir == NORTH) {
+            if(look[NORTHEAST] == EMPTY)
+                return NORTHEAST;
+            if(look[EAST] == EMPTY)
+                return EAST;
+        }
+        if(balldir == SOUTH) {
+            if(look[SOUTHEAST] == EMPTY)
+                return SOUTHEAST;
+            if(look[EAST] == EMPTY)
+                return EAST;
         }
         if(balldir == SOUTHWEST) {
             if(look[SOUTH] == EMPTY)
@@ -123,7 +126,7 @@ public class Silverbacks extends Player
             else if(look[WEST] == EMPTY)
                 return NORTHWEST;
         }
-        return PLAYER;        
+        return PLAYER;   
     }
 
     //moves/kicks depending on where the ball is
@@ -256,54 +259,6 @@ public class Silverbacks extends Player
         return balldir;
     }
 
-
-    public int InterceptBall() {
-        if(bally < ply[ID-1]) {
-            if(look[NORTHEAST] == EMPTY)
-                return NORTHEAST;
-            if(ballx <= plx[ID-1] && look[NORTH] == EMPTY)
-                return NORTH;
-            if(look[EAST] == EMPTY)
-                return EAST;
-            if(look[NORTH] == EMPTY)
-                return NORTH;
-        }
-        else if(bally > ply[ID-1]) {
-            if(look[SOUTHEAST] == EMPTY)
-                return SOUTHEAST;
-            if(ballx <= plx[ID-1]&& look[SOUTH] == EMPTY)
-                return SOUTH;
-            if(look[EAST] == EMPTY)
-                return EAST;
-            if(look[NORTH] == EMPTY)
-                return SOUTH;
-        }
-        else if(ballx >= plx[ID-1]) {
-            if(look[EAST] == EMPTY)
-                return EAST;
-            if(look[SOUTHEAST] == EMPTY)
-                return SOUTHEAST;
-        }
-        else {
-            if(look[WEST] == EMPTY)
-                return WEST;
-            if(look[SOUTHWEST] == EMPTY)
-                return SOUTHWEST;
-        }
-        if(look[balldir] == EMPTY)
-            return balldir;
-        if(balldir < 3 || balldir > 5) {
-            if(look[(balldir+1)%8] == EMPTY)
-                return (balldir+1)%8;
-        }
-        else {
-            if(look[balldir-1] == EMPTY)
-                return balldir-1;
-        }
-        if(look[balldir+1] == EMPTY)
-            return balldir+1;
-        return balldir;
-    }
 
     public boolean CanIScore() {
         boolean iCanScore = false;
