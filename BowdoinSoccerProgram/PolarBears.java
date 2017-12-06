@@ -5,7 +5,7 @@ public class PolarBears extends Player {
     static final int CONTROL_TIME = 13;
     static final int WINGSPAN = 8;
     static final int WINGBACK = 4;
-    static final int BALLDISTANCETOLEAD = 3;
+    static final int BALLDISTANCETODIAG = 3;
     static final int SWEEPERDISTBACK = 8;
     static final int OPP_DIST_TO_PASS = 2;
     static final int Lead = 1;
@@ -35,6 +35,8 @@ public class PolarBears extends Player {
     static public final int XSQUARES = 80;
     static public final int YSQUARES = 40;
 
+    static boolean diagonal = false;
+    static int diagDirection = 0;
     static int cycle;
     static int haveBall;
     static int leader;
@@ -88,6 +90,7 @@ public class PolarBears extends Player {
         /* Mark where I am */
         plx[0] = GetLocation().x;
         ply[0] = GetLocation().y;
+        System.out.println("Player 1 at " + plx[0] + ", " + ply[0]);
         ball[0] = HaveBall(0);
         balld[0] = GetBallDistance();
         /* Generate orders */
@@ -113,6 +116,7 @@ public class PolarBears extends Player {
         int action = WEST;
         plx[1] = GetLocation().x;
         ply[1] = GetLocation().y;
+        System.out.println("Player 2 at " + plx[1] + ", " + ply[1]);
         ball[1] = HaveBall(1);
         balld[1] = GetBallDistance();
         synchro[1] = 0;
@@ -135,6 +139,7 @@ public class PolarBears extends Player {
         /* Mark where I am */
         plx[2] = GetLocation().x;
         ply[2] = GetLocation().y;
+        System.out.println("Player 3 at " + plx[2] + ", " + ply[2]);
         ball[2] = HaveBall(2);
         balld[2] = GetBallDistance();
         synchro[2] = 0;
@@ -157,6 +162,7 @@ public class PolarBears extends Player {
         /* Mark where I am */
         plx[3] = GetLocation().x;
         ply[3] = GetLocation().y;
+        System.out.println("Player 4 at " + plx[3] + ", " + ply[3]);
         ball[3] = HaveBall(3);
         balld[3] = GetBallDistance();
         synchro[3] = 0;
@@ -173,8 +179,12 @@ public class PolarBears extends Player {
         return action;
     }
 
-    public void WonPoint () {};
-    public void LostPoint () {};
+    public void WonPoint () {
+        diagonal = false;
+    }
+    public void LostPoint () {
+        diagonal = false;
+    }
     public void GameOver () {};
 
     public int HaveBall(int id) {
@@ -221,10 +231,7 @@ public class PolarBears extends Player {
             roles[i] = 0;
         }
 
-        leader = newLead;
-        roles[leader] = Lead;
-
-        /* easternmost unassigned player is Sweeper */
+        /* easternmost player is Sweeper */
         score = -1;
         for (i=0; i<4; i++) {
             if (roles[i] == 0) {
@@ -236,7 +243,12 @@ public class PolarBears extends Player {
         }
         roles[good] = Sweeper;
 
-        // assign last two players to LeadB and LeadC
+        if (roles[newLead] == 0) {
+            roles[newLead] = Lead;
+            leader = newLead;
+        }
+
+        // assign other two players to LeadB and LeadC
         for (i=0; i<4; i++) {
             if (roles[i] == 0) {
                 roles[i] = LeadB;
@@ -251,9 +263,22 @@ public class PolarBears extends Player {
             }
         }
 
+        // ensures a leader is assigned.
+        for (i=0; i<4; i++) {
+            if (roles[i] == 0) {
+                roles[i] = Lead;
+                leader = i;
+                break;
+            }
+        }
+
     }
 
     public int PolarLead() {
+        System.out.println(" and is a leader");
+        if (diagonal == true) {
+            return(getOpen());
+        }
         if(balldist == 1) {
             return SurroundBall();
         }
@@ -292,8 +317,8 @@ public class PolarBears extends Player {
         return PLAYER;
     }
 
-// still working on this
     public int Sweeper () {
+        System.out.println(" and is a sweeper");
         int x;
         int y;
         int ew = -1;
@@ -301,23 +326,34 @@ public class PolarBears extends Player {
         x = GetLocation().x;
         y = GetLocation().y;
 
-        /* If near the ball, act like a leader */
-        if (GetBallDistance() < BALLDISTANCETOLEAD) {
-            return(PolarLead());
+        /* If near the ball, initiate diagonal pass */
+        if (GetBallDistance() < BALLDISTANCETODIAG) {
+            if (y > YSQUARES/2) {
+                diagonal = true;
+                diagDirection = NORTH;
+                return(DiagPass());
+            } else {
+                diagonal = true;
+                diagDirection = SOUTH;
+                return(DiagPass());
+            }
         }
 
         /* Try to get into position */
-        if (y > bally) {
+        if (Look(NORTH) == EMPTY && (y > ply[leader])) {
             ns = NORTH;
         }
-        if (y < bally) {
+        if (Look(SOUTH) == EMPTY && (y < ply[leader])) {
+            ns = SOUTH;
+        }
+        if ((x < plx[leader]) && (y == ply[leader])) {
             ns = SOUTH;
         }
 
-        if (x > (ballx + SWEEPERDISTBACK)) {
+        if (Look(WEST) == EMPTY && (x > plx[leader] + SWEEPERDISTBACK)) {
             ew = WEST;
         }
-        if (x < (ballx + SWEEPERDISTBACK)) {
+        if (Look(EAST) == EMPTY && (x < plx[leader] + SWEEPERDISTBACK)) {
             ew = EAST;
         }
 
@@ -346,6 +382,82 @@ public class PolarBears extends Player {
             return(SOUTH);
         }
 
+        return(GetBallDirection());
+    }
+
+    public int DiagPass() {
+        if (minOppdist() < 4) {
+            diagonal = false;
+            Regroup(ID - 1);
+            return (PolarLead());
+        }
+        if (diagDirection == NORTH) {
+            // get to the southeast of the ball and kick
+            if (Look(SOUTH) == BALL) {
+                return SOUTHEAST;
+            }
+            if (Look(SOUTHEAST) == BALL) {
+                return SOUTH;
+            }
+            if (Look(EAST) == BALL) {
+                return SOUTHEAST;
+            }
+            if (Look(NORTHEAST) == BALL) {
+                return EAST;
+            }
+            if (Look(NORTH) == BALL) {
+                return EAST;
+            }
+            if (Look(NORTHWEST) == BALL) {
+                diagonal = false;
+                return(KICK);
+            }
+            if (Look(WEST) == BALL) {
+                return SOUTH;
+            }
+            if (Look(SOUTHWEST) == BALL) {
+                return SOUTH;
+            }
+
+        }
+        if (diagDirection == SOUTH) {
+            // get to the northeast of the ball and kick
+            if (Look(SOUTH) == BALL) {
+                return EAST;
+            }
+            if (Look(SOUTHEAST) == BALL) {
+                return EAST;
+            }
+            if (Look(EAST) == BALL) {
+                return NORTHEAST;
+            }
+            if (Look(NORTHEAST) == BALL) {
+                return NORTH;
+            }
+            if (Look(NORTH) == BALL) {
+                return NORTHEAST;
+            }
+            if (Look(NORTHWEST) == BALL) {
+                return NORTH;
+            }
+            if (Look(WEST) == BALL) {
+                return NORTH;
+            }
+            if (Look(SOUTHWEST) == BALL) {
+                diagonal = false;
+                return(KICK);
+            }
+        }
+        return(GetBallDirection());
+    }
+
+    public int getOpen() {
+        if (diagDirection == NORTH) {
+            return NORTH;
+        }
+        if (diagDirection == SOUTH) {
+            return SOUTH;
+        }
         return(GetBallDirection());
     }
 
@@ -641,8 +753,8 @@ public class PolarBears extends Player {
 
         ballx = ballx*(1000-weight)/1000 + ballx_temp*(weight)/1000;
         bally = bally*(1000-weight)/1000 + bally_temp*(weight)/1000;
-        System.out.println("ballx: " + ballx);
-        System.out.println("bally: " + bally);
+        // System.out.println("ballx: " + ballx);
+        // System.out.println("bally: " + bally);
     }
 
     public void updateOppLocation() {
