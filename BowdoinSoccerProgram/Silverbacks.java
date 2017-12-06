@@ -85,10 +85,12 @@ public class Silverbacks extends Player
     }
 
     public int Leader() {
+        //If it's touching the ball, it acts according to SurroundBall() function
         if(balldist == 1) {
             return SurroundBall();
         }
-        if(balldist > 2.2 && balldist < 2.3) {
+        /*
+        if(balldist == 2.2) {
             if((balldir == SOUTHEAST || balldir == NORTHEAST) && look[EAST] == EMPTY)
                 return EAST;
             if(balldir == SOUTHWEST && look[SOUTH] == EMPTY)
@@ -96,6 +98,7 @@ public class Silverbacks extends Player
             if(balldir == NORTHWEST && look[NORTH] == EMPTY)
                 return NORTH;   
         }
+        */
         if(look[balldir] == EMPTY) {
             return balldir;
         }
@@ -126,31 +129,56 @@ public class Silverbacks extends Player
     //moves/kicks depending on where the ball is
     //I think there should be more situations in which it kicks it
     public int SurroundBall() {
-        boolean opp_in_way = false;
-        int offset_from_east = balldir - EAST;
+        boolean opp_NE_ball = false;
+        boolean opp_SE_ball = false;
+        int offset_from_east = balldir - EAST;     
+                    
         if(look[WEST] == BALL) {
+            boolean opp_west = false;
+            double opp_west_distance = 100;
             for(int i = 0; i < 4; i++) {
-                if(oppx[i] == plx[ID-1] && oppy[i] < ply[ID-1])
-                    opp_in_way = true;
+                if((double)((int)(oppdist[i])) == oppdist[i] && oppdist[i] < 10)
+                    if(oppdir[i] == WEST) {
+                        opp_west = true;
+                        opp_west_distance = Math.min(opp_west_distance, oppdist[i]);
+                    }
+                if(oppdist[i] == Math.sqrt(5)) {
+                    if(oppdir[i] == NORTHEAST)
+                        opp_NE_ball = true;
+                    else if(oppdir[i] == SOUTHEAST)
+                        opp_SE_ball = true;
+                }   
             }
-            if(!opp_in_way)
+            if(!opp_west)
                 return KICK;
+            else if(opp_west_distance > 3) {
+                if(!opp_NE_ball && look[SOUTH] == EMPTY)
+                    return SOUTH;
+                if(!opp_SE_ball && look[NORTH] == EMPTY)
+                    return NORTH;
+            }
+            if(look[NORTH] == TEAMMATE && look[SOUTH] == EMPTY)
+                return SOUTH;
+            if(look[SOUTH] == TEAMMATE && look[NORTH] == EMPTY)
+                return NORTH;
         }
         else if(look[NORTHWEST] == BALL) {
             for(int i = 0; i < 4; i++) {
-                if((plx[ID-1] - oppx[i] == ply[ID-1] - oppy[i]) && oppy[i] < ply[ID-1])
-                    opp_in_way = true;
-            }
-            if(!opp_in_way)
+                double a = oppdist[i]/Math.sqrt(2);
+                if((double)((int)(a)) == a)
+                    opp_NE_ball = true;
+            } 
+            if(!opp_NE_ball)
                 return KICK;
         }
         else if(look[SOUTHWEST] == BALL) {
             for(int i = 0; i < 4; i++) {
-                if((plx[ID-1] - oppx[i] == oppy[i] - ply[ID-1]) && oppy[i] < ply[ID-1])
-                    opp_in_way = true;
-            }
-            if(!opp_in_way)
-                return KICK;        
+                double a = oppdist[i]/Math.sqrt(2);
+                if((double)((int)(a)) == a)
+                    opp_SE_ball = true;
+            } 
+            if(!opp_SE_ball)
+                return KICK;      
         }
         else if(balldir == EAST) {
             if(look[NORTHEAST] == EMPTY)
@@ -175,10 +203,19 @@ public class Silverbacks extends Player
         //what to do here??
         else if(balldir == NORTH || balldir == SOUTH) {
             System.out.println("North or south of ball");
-            //if all opponents are far away go northeast or east
             int east_diagonal = EAST+offset_from_east/2;
             int west_diagonal = ((((EAST+3*offset_from_east/2) % 8) + 8) % 8);
             boolean teammate_in_way_of_kick = false;
+            
+            if(look[east_diagonal] == EMPTY) {
+                System.out.println("East Diagonal");
+                return east_diagonal;
+            }
+            if(look[EAST] == EMPTY) {
+                System.out.println("East");                
+                return EAST;
+            }
+            
             for(int i = 0; i < 4; i++) {
                 System.out.println(ply[i]);
                 if(ply[ID-1] - offset_from_east == ply[i])
@@ -194,7 +231,7 @@ public class Silverbacks extends Player
             if(look[WEST] == OPPONENT) {
                 boolean teammate_can_block = false;
                 for(int i = 0; i < 4; i++) {
-                    if(plx[ID-1] + 1 == plx[i] && ply[ID-1] - offset_from_east == ply[i])
+                    if(plx[ID-1] == plx[i] && ply[ID-1] - offset_from_east == ply[i])
                         teammate_can_block = true;
                 }
                 if(!teammate_can_block && !teammate_in_way_of_kick) {
@@ -219,14 +256,6 @@ public class Silverbacks extends Player
         return balldir;
     }
 
-    public int minOppdist() {
-        int mindist = oppdist[0];
-        for(int i = 1; i < 4; i++) {
-            if(oppdist[i] < mindist)
-                mindist = oppdist[i];
-        }
-        return mindist;
-    }
 
     public int InterceptBall() {
         if(bally < ply[ID-1]) {
@@ -242,21 +271,24 @@ public class Silverbacks extends Player
         else if(bally > ply[ID-1]) {
             if(look[SOUTHEAST] == EMPTY)
                 return SOUTHEAST;
-            if(ballx <= plx[ID-1])
+            if(ballx <= plx[ID-1]&& look[SOUTH] == EMPTY)
                 return SOUTH;
-            return EAST;
-        }
-        else if(ballx > plx[ID-1]) {
-            if(look[EAST] == EMPTY) {
+            if(look[EAST] == EMPTY)
                 return EAST;
-            }
-            return SOUTHEAST;
+            if(look[NORTH] == EMPTY)
+                return SOUTH;
+        }
+        else if(ballx >= plx[ID-1]) {
+            if(look[EAST] == EMPTY)
+                return EAST;
+            if(look[SOUTHEAST] == EMPTY)
+                return SOUTHEAST;
         }
         else {
-            if(look[WEST] == EMPTY) {
+            if(look[WEST] == EMPTY)
                 return WEST;
-            }
-            return SOUTHWEST;
+            if(look[SOUTHWEST] == EMPTY)
+                return SOUTHWEST;
         }
         if(look[balldir] == EMPTY)
             return balldir;
@@ -275,7 +307,7 @@ public class Silverbacks extends Player
 
     public boolean CanIScore() {
         boolean iCanScore = false;
-        if(GetBallDistance() == 1) {
+        if(balldist == 1) {
             if(look[WEST] == BALL) {
                 if(plx[ID-1] < 10) {
                     iCanScore = true;
@@ -323,8 +355,8 @@ public class Silverbacks extends Player
         balldir = GetBallDirection();
 
         int weight = 1000;
-        int ballx_temp = 0;
-        int bally_temp = 0;
+        double ballx_temp = 0;
+        double bally_temp = 0;
 
         if(look[0] == 9) {
             ballx_temp = plx[ID-1];
@@ -359,7 +391,7 @@ public class Silverbacks extends Player
             bally_temp = ply[ID-1] - 1;
         }
         else {
-            int balldist_sqrt2 = (int)(balldist*Math.sqrt(2));
+            double balldist_sqrt2 = (balldist*Math.sqrt(2));
 
             //just made up this exponential, we should try to optimize it
             weight = (int)(1200*Math.exp(-0.1*balldist));
@@ -398,8 +430,8 @@ public class Silverbacks extends Player
             }
         }
 
-        ballx = ballx*(1000-weight) + ballx_temp*(weight);
-        bally = bally*(1000-weight) + bally_temp*(weight);
+        ballx = (int)(ballx*(1000-weight) + ballx_temp*(weight));
+        bally = (int)(bally*(1000-weight) + bally_temp*(weight));
     }
 
     public void updateOppLocation() {
@@ -407,8 +439,8 @@ public class Silverbacks extends Player
             oppdist[i] = GetOpponentDistance(i+1);
             oppdir[i] = GetOpponentDirection(i+1);
             int weight = 1000;
-            int oppx_temp = 0;
-            int oppy_temp = 0;
+            double oppx_temp = 0;
+            double oppy_temp = 0;
 
             if(look[0] == 9) {
                 oppx_temp = plx[ID-1];
@@ -443,7 +475,7 @@ public class Silverbacks extends Player
                 oppy_temp = ply[ID-1] - 1;
             }
             else {
-                int oppdist_sqrt2 = (int)(oppdist[i]*Math.sqrt(2));
+                int oppdist_sqrt2 = (int)(oppdist[i]*Math.sqrt(2)+0.5);
 
                 //just made up this exponential, we should try to optimize it
                 weight = (int)(1200*Math.exp(-0.1*oppdist[i]));
@@ -482,8 +514,10 @@ public class Silverbacks extends Player
                 }
             }
 
-            ballx = ballx*(1000-weight) + oppx_temp*(weight);
-            bally = bally*(1000-weight) + oppy_temp*(weight);
+            oppx[i] = (int)(oppx[i]*(1000-weight)/1000 + oppx_temp*(weight)/1000);
+            oppy[i] = (int)(oppy[i]*(1000-weight)/1000 + oppy_temp*(weight)/1000);
+            //System.out.println("ballx: " + ballx);
+            //System.out.println("bally: " + bally);            
         }
     }
 }
