@@ -415,20 +415,20 @@ public class PolarBears extends Player {
         }
         //what to do here??
         else if(balldir == NORTH || balldir == SOUTH) {
-            System.out.println("North or south of ball");
+            //System.out.println("North or south of ball");
             //if all opponents are far away go northeast or east
             int east_diagonal = EAST+offset_from_east/2;
             int west_diagonal = ((((EAST+3*offset_from_east/2) % 8) + 8) % 8);
             boolean teammate_in_way_of_kick = false;
             for(int i = 0; i < 4; i++) {
-                System.out.println(ply[i]);
+                //System.out.println(ply[i]);
                 if(ply[ID-1] - offset_from_east == ply[i])
                     teammate_in_way_of_kick = true;
             }
             //if there is an opponent to the northwest and no teammate to the northeast
             if(look[east_diagonal] != TEAMMATE && look[west_diagonal] == OPPONENT) {
                 if(!teammate_in_way_of_kick) {
-                    System.out.println("Kick1");
+                    //System.out.println("Kick1");
                     return KICK;
                 }
             }
@@ -439,16 +439,16 @@ public class PolarBears extends Player {
                         teammate_can_block = true;
                 }
                 if(!teammate_can_block && !teammate_in_way_of_kick) {
-                    System.out.println("Kick2");
+                    //System.out.println("Kick2");
                     return KICK;
                 }
             }
             if(look[east_diagonal] == EMPTY) {
-                System.out.println("East Diagonal");
+                //System.out.println("East Diagonal");
                 return east_diagonal;
             }
             if(look[EAST] == EMPTY) {
-                System.out.println("East");
+                //System.out.println("East");
                 return EAST;
             }
         }
@@ -639,8 +639,10 @@ public class PolarBears extends Player {
             }
         }
 
-        ballx = ballx*(1000-weight) + ballx_temp*(weight);
-        bally = bally*(1000-weight) + bally_temp*(weight);
+        ballx = ballx*(1000-weight)/1000 + ballx_temp*(weight)/1000;
+        bally = bally*(1000-weight)/1000 + bally_temp*(weight)/1000;
+        System.out.println("ballx: " + ballx);
+        System.out.println("bally: " + bally);
     }
 
     public void updateOppLocation() {
@@ -723,8 +725,8 @@ public class PolarBears extends Player {
                 }
             }
 
-            ballx = ballx*(1000-weight) + oppx_temp*(weight);
-            bally = bally*(1000-weight) + oppy_temp*(weight);
+            ballx = ballx*(1000-weight)/1000 + oppx_temp*(weight)/1000;
+            bally = bally*(1000-weight)/1000 + oppy_temp*(weight)/1000;
         }
     }
 
